@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Backend (Fastify + ts-node)",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["start:dev"],
+      "cwd": "backend",
+      "port": 3000
+    },
+    {
+      "name": "Frontend (Expo)",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["start"],
+      "cwd": "frontend",
+      "port": 8081,
+      "autoPort": false
+    }
+  ]
+}
