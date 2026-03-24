@@ -3,7 +3,7 @@ services:
     name: parkmark-backend
     env: node
     plan: free
-    buildCommand: corepack enable && yarn install && yarn build
+    buildCommand: npm install && npm run build
     startCommand: node dist/main.js
     envVars:
       - key: NODE_ENV
