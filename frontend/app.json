@@ -69,10 +69,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      ["react-native-google-mobile-ads", {
-        "androidAppId": "ca-app-pub-6114268066977057~9774721382",
-        "iosAppId": "ca-app-pub-6114268066977057~4516723521"
-      }],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-6114268066977057~9774721382",
+          "iosAppId": "ca-app-pub-6114268066977057~4516723521"
+        }
+      ],
       [
         "@react-native-google-signin/google-signin",
         {
@@ -111,9 +114,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "a52132e3-7b24-4c1b-9315-46625e580b8a"
+        "projectId": "e55a4387-3832-48a3-8fc9-08ebee8e7a7d"
       }
     },
-    "owner": "abacus.ai"
+    "owner": "umutugur"
   }
 }

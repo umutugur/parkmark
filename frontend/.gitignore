@@ -37,3 +37,4 @@ npm-debug.log*
 
 # Backup klasörü
 assets/images_backup/
+google-services*.json
