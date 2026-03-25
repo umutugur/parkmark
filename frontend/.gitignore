@@ -21,7 +21,9 @@ android/
 .env.local
 .env.*.local
 
-# Firebase config
+# Firebase config — git'e ekleme, EAS file secrets kullan
+google-services.json
+GoogleService-Info.plist
 
 # Logs
 *.log
