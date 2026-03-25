@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getOfferings, purchasePackage, restorePurchases } from '../services/purchases';
 import { loadRewardedAd } from '../services/ads';
 import { apiService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../constants/theme';
 import { GlassCard } from '../components/ui/GlassCard';
@@ -45,6 +46,7 @@ const { RewardedAdEventType } = isExpoGo ? ({} as any) : require('react-native-g
 
 export default function PaywallScreen() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const insets = useSafeAreaInsets();
   const [offerings, setOfferings] = useState<any>(null);
   const [selectedPlan, setSelectedPlan] = useState<string>('yearly');
@@ -102,6 +104,7 @@ export default function PaywallScreen() {
     setLoading(true);
     try {
       await purchasePackage(pkg);
+      await refreshUser(); // premium durumunu anında güncelle
       router.back();
     } catch (err: any) {
       if (!err.userCancelled) {
@@ -139,6 +142,7 @@ export default function PaywallScreen() {
     setLoading(true);
     try {
       await restorePurchases();
+      await refreshUser(); // premium durumunu anında güncelle
       Alert.alert('Başarılı', 'Satın alımlar geri yüklendi.');
       router.back();
     } catch {

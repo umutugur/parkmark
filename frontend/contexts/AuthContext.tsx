@@ -20,6 +20,7 @@ interface AuthContextType {
   loginWithOAuth: (provider: 'google' | 'apple', idToken: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -180,6 +181,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.replace('/auth/login');
   };
 
+  const refreshUser = async () => {
+    try {
+      const userData = await apiService.getMe();
+      setUser(userData?.user ?? null);
+    } catch (error) {
+      console.error('[Auth] refreshUser failed:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -192,6 +202,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loginWithOAuth,
         logout,
         completeOnboarding,
+        refreshUser,
       }}
     >
       {children}

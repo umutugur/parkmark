@@ -119,14 +119,17 @@ export default function HistoryScreen() {
     </TouchableOpacity>
   );
 
-  const renderAdItem = () => (
-    <View style={styles.adItem}>
-      <BannerAd
-        unitId={BANNER_AD_UNIT_ID}
-        size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
-      />
-    </View>
-  );
+  const renderAdItem = () => {
+    if (!BANNER_AD_UNIT_ID) return null;
+    return (
+      <View style={styles.adItem}>
+        <BannerAd
+          unitId={BANNER_AD_UNIT_ID}
+          size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
+        />
+      </View>
+    );
+  };
 
   const renderItem = ({ item }: { item: ListItem }) => {
     if ('type' in item && item.type === 'ad') {
