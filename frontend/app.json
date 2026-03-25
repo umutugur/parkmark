@@ -35,6 +35,11 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "package": "com.parkmark.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBjDnDkYqR-KCj_sZjrTGGEUlTxS31kbc8"
+        }
+      },
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",

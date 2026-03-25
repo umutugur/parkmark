@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>558893358130-rs0oq29plkrahjgeurhrp59s315hnfec.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.558893358130-rs0oq29plkrahjgeurhrp59s315hnfec</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDVk93mDSB105BP_tBWuVK3OBKixA_bUKQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>558893358130</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.parkmark.app</string>
+	<key>PROJECT_ID</key>
+	<string>parkmark-4dd35</string>
+	<key>STORAGE_BUCKET</key>
+	<string>parkmark-4dd35.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:558893358130:ios:eeacfbcd40af2d6008302b</string>
+</dict>
+</plist>

@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "558893358130",
+    "project_id": "parkmark-4dd35",
+    "storage_bucket": "parkmark-4dd35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558893358130:android:b156aa19ec12a3c608302b",
+        "android_client_info": {
+          "package_name": "com.parkmark.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "558893358130-e49flda63rkjkr4403qbl7s88h43tu3q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.parkmark.app",
+            "certificate_hash": "32a2f977d94385ccacf151a64bb18c00a1e2e34c"
+          }
+        },
+        {
+          "client_id": "558893358130-hdjhkkakms9jla0rkurovecrdgqldfuk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.parkmark.app",
+            "certificate_hash": "6d2f206cd3be32cf70f7b44c0488b6c7a094e8af"
+          }
+        },
+        {
+          "client_id": "558893358130-vold4aapq959ivfieihve5ulgg5h36li.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjDnDkYqR-KCj_sZjrTGGEUlTxS31kbc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "558893358130-a3aqe9co47soeo6212f9boh2c8ro2nj5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "558893358130-rs0oq29plkrahjgeurhrp59s315hnfec.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.parkmark.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

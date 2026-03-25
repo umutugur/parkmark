@@ -21,9 +21,7 @@ android/
 .env.local
 .env.*.local
 
-# Firebase config — EAS secrets olarak eklenecek
-google-services.json
-GoogleService-Info.plist
+# Firebase config
 
 # Logs
 *.log
@@ -37,4 +35,3 @@ npm-debug.log*
 
 # Backup klasörü
 assets/images_backup/
-google-services*.json
