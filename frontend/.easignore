@@ -1,0 +1,22 @@
+# node_modules is reinstalled during build
+node_modules/
+
+# Build output
+.expo/
+dist/
+web-build/
+
+# Unnecessary assets
+assets/images_backup/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Secrets (injected via EAS file secrets)
+google-services.json
+GoogleService-Info.plist
+.env
+.env.local
