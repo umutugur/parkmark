@@ -1,9 +1,24 @@
 import { Platform } from 'react-native';
-import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
+import Constants from 'expo-constants';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
+// Expo Go'da native modül olmadığı için top-level import yerine lazy require
+const isExpoGo = Constants.appOwnership === 'expo';
+
+const getGoogleSignin = () => {
+  if (isExpoGo) return null;
+  try {
+    return require('@react-native-google-signin/google-signin');
+  } catch {
+    return null;
+  }
+};
+
 export const configureGoogleSignIn = () => {
-  GoogleSignin.configure({
+  const mod = getGoogleSignin();
+  if (!mod) return;
+
+  mod.GoogleSignin.configure({
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     ...(Platform.OS === 'ios'
       ? { iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID }
@@ -19,6 +34,11 @@ export interface OAuthResult {
 }
 
 export const signInWithGoogle = async (): Promise<OAuthResult> => {
+  const mod = getGoogleSignin();
+  if (!mod) throw new Error('Google Sign-In not available in Expo Go');
+
+  const { GoogleSignin, isSuccessResponse } = mod;
+
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
   const response = await GoogleSignin.signIn();
 

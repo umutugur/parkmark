@@ -8,16 +8,20 @@ export const REMINDER_NOTIF_KEY = '@parkmark_reminders_enabled';
 export const MARKETING_NOTIF_KEY = '@parkmark_marketing_enabled';
 const PUSH_TOKEN_KEY = '@parkmark_push_token';
 
-// Configure notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Configure notification handler (Expo Go'da push desteği yok ama local notif çalışır)
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+} catch {
+  // Expo Go'da sessizce devam et
+}
 
 // ─── Permission ──────────────────────────────────────────────────────────────
 
