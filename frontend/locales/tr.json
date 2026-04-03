@@ -36,7 +36,11 @@
     "loginSuccess": "Giriş başarılı",
     "signupSuccess": "Hesap başarıyla oluşturuldu",
     "loginError": "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.",
-    "signupError": "Kayıt başarısız. Lütfen tekrar deneyin."
+    "signupError": "Kayıt başarısız. Lütfen tekrar deneyin.",
+    "continueAsGuest": "Üyeliksiz Devam Et",
+    "guestTitle": "Giriş Gerekiyor",
+    "guestMessage": "Bu özelliği kullanabilmek için giriş yapman gerekiyor.",
+    "signInNow": "Giriş Yap"
   },
   "onboarding": {
     "skip": "Geç",

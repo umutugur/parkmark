@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 export default function SplashScreen() {
   const router = useRouter();
-  const { token, isLoading, isOnboardingCompleted } = useAuth();
+  const { token, isLoading, isGuest, isOnboardingCompleted } = useAuth();
   const { t } = useTranslation();
   const scaleAnim = new Animated.Value(0.5);
   const fadeAnim = new Animated.Value(0);
@@ -32,7 +32,7 @@ export default function SplashScreen() {
     // Navigate after animation
     const timer = setTimeout(() => {
       if (!isLoading) {
-        if (token) {
+        if (token || isGuest) {
           router.replace('/home');
         } else if (!isOnboardingCompleted) {
           router.replace('/auth/onboarding');
@@ -43,7 +43,7 @@ export default function SplashScreen() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [token, isLoading, isOnboardingCompleted]);
+  }, [token, isLoading, isGuest, isOnboardingCompleted]);
 
   return (
     <LinearGradient

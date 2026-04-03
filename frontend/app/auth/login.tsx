@@ -31,7 +31,7 @@ type TabType = 'login' | 'signup';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, signup, loginWithOAuth } = useAuth();
+  const { login, signup, loginWithOAuth, continueAsGuest } = useAuth();
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TabType>('login');
@@ -303,6 +303,15 @@ export default function LoginScreen() {
             </TouchableOpacity>
           )}
 
+          {/* Continue as Guest */}
+          <TouchableOpacity
+            style={styles.guestButton}
+            onPress={continueAsGuest}
+            disabled={oauthLoading !== null}
+          >
+            <Text style={styles.guestButtonText}>{t('auth.continueAsGuest')}</Text>
+          </TouchableOpacity>
+
           {/* Language Toggle */}
           <TouchableOpacity style={styles.languageToggle} onPress={toggleLanguage}>
             <Text style={styles.languageText}>
@@ -426,6 +435,18 @@ const styles = StyleSheet.create({
   },
   oauthButtonTextApple: {
     color: Colors.bgDeep,
+  },
+  guestButton: {
+    alignSelf: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.sm,
+  },
+  guestButtonText: {
+    fontSize: FontSizes.body,
+    color: Colors.textSecondary,
+    fontFamily: 'NunitoSans-Regular',
+    textDecorationLine: 'underline',
   },
   languageToggle: {
     alignSelf: 'center',

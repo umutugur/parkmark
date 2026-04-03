@@ -36,7 +36,11 @@
     "loginSuccess": "Logged in successfully",
     "signupSuccess": "Account created successfully",
     "loginError": "Login failed. Please check your credentials.",
-    "signupError": "Signup failed. Please try again."
+    "signupError": "Signup failed. Please try again.",
+    "continueAsGuest": "Continue without account",
+    "guestTitle": "Sign In Required",
+    "guestMessage": "You need to sign in to use this feature.",
+    "signInNow": "Sign In"
   },
   "onboarding": {
     "skip": "Skip",

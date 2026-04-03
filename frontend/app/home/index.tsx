@@ -21,12 +21,14 @@ import { requestLocationPermission } from '../../utils/permissions';
 import { getCurrentLocation, openMapApp } from '../../utils/location';
 import { apiService } from '../../services/api';
 import { ParkingRecord } from '../../types';
+import { useAuthGuard } from '../../hooks/useAuthGuard';
 import { formatDuration } from '../../utils/time';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { requireAuth } = useAuthGuard();
   const mapRef = useRef<MapView>(null);
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
@@ -105,31 +107,35 @@ export default function HomeScreen() {
   }, [activeParking]);
 
   const handleParkHere = () => {
-    router.push('/home/save-parking');
+    requireAuth(() => router.push('/home/save-parking'));
   };
 
   const handleNavigate = () => {
-    if (activeParking) {
-      openMapApp(
-        activeParking.latitude,
-        activeParking.longitude,
-        activeParking?.address ?? 'Parking Location'
-      );
-    }
+    requireAuth(() => {
+      if (activeParking) {
+        openMapApp(
+          activeParking.latitude,
+          activeParking.longitude,
+          activeParking?.address ?? 'Parking Location'
+        );
+      }
+    });
   };
 
   const handleViewDetails = () => {
-    if (activeParking?.id) {
-      router.push(`/home/parking/${activeParking.id}`);
-    }
+    requireAuth(() => {
+      if (activeParking?.id) {
+        router.push(`/home/parking/${activeParking.id}`);
+      }
+    });
   };
 
   const handleSettings = () => {
-    router.push('/home/settings');
+    requireAuth(() => router.push('/home/settings'));
   };
 
   const handleHistory = () => {
-    router.push('/home/history');
+    requireAuth(() => router.push('/home/history'));
   };
 
   return (

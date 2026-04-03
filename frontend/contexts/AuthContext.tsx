@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  isGuest: boolean;
   isOnboardingCompleted: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
@@ -21,6 +22,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  continueAsGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false);
 
   const saveToken = async (newToken: string) => {
@@ -173,11 +176,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const continueAsGuest = () => {
+    setIsGuest(true);
+    router.replace('/home');
+  };
+
   const logout = async () => {
     await removeToken();
     apiService.setToken(null);
     setToken(null);
     setUser(null);
+    setIsGuest(false);
     router.replace('/auth/login');
   };
 
@@ -196,6 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         token,
         isLoading,
+        isGuest,
         isOnboardingCompleted,
         login,
         signup,
@@ -203,6 +213,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         completeOnboarding,
         refreshUser,
+        continueAsGuest,
       }}
     >
       {children}
