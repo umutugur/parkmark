@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hesap Silme Talebi – ParkMark</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #1a2130;
+      line-height: 1.7;
+    }
+    header {
+      background: #1a2130;
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    header h1 { font-size: 1.8rem; font-weight: 700; }
+    header p { margin-top: 8px; color: #a0aec0; font-size: 0.95rem; }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1a2130;
+    }
+    .card p, .card li {
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+    .card ul {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+    .steps li {
+      counter-increment: step;
+      padding: 12px 12px 12px 48px;
+      position: relative;
+      border-left: 3px solid #e2e8f0;
+      margin-bottom: 12px;
+      background: #f7fafc;
+      border-radius: 0 8px 8px 0;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      width: 24px;
+      height: 24px;
+      background: #1a2130;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .warning {
+      background: #fff5f5;
+      border-left: 4px solid #fc8181;
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      color: #c53030;
+      font-size: 0.9rem;
+    }
+    .email-btn {
+      display: inline-block;
+      background: #1a2130;
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    .data-table th {
+      background: #edf2f7;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.85rem;
+      color: #2d3748;
+    }
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.9rem;
+      color: #4a5568;
+    }
+    footer {
+      text-align: center;
+      padding: 32px;
+      background: #1a2130;
+      color: #718096;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>ParkMark — Hesap Silme</h1>
+  <p>Account Deletion Request</p>
+</header>
+
+<div class="container">
+
+  <div class="warning">
+    ⚠️ Hesabınızı sildiğinizde tüm park kayıtlarınız, fotoğraflarınız ve verileriniz kalıcı olarak silinir. Bu işlem geri alınamaz.
+  </div>
+
+  <!-- Method 1: In-app -->
+  <div class="card">
+    <h2>Yöntem 1 — Uygulama İçinden Silme (Önerilen)</h2>
+    <p>Hesabınızı doğrudan ParkMark uygulaması üzerinden silebilirsiniz:</p>
+    <ol class="steps">
+      <li>Uygulamayı açın ve giriş yapın</li>
+      <li>Alt menüden <strong>Ayarlar</strong>'a gidin</li>
+      <li>En alttaki <strong>Hesabı Sil</strong> seçeneğine dokunun</li>
+      <li>Onaylayın — hesabınız ve tüm verileriniz anında silinir</li>
+    </ol>
+  </div>
+
+  <!-- Method 2: Email -->
+  <div class="card">
+    <h2>Yöntem 2 — E-posta ile Talep</h2>
+    <p>Uygulamaya erişiminiz yoksa bize e-posta gönderin. Talebinizi <strong>5 iş günü</strong> içinde işleme alırız.</p>
+    <p style="margin-top:12px;"><strong>Konu:</strong> Hesap Silme Talebi — [e-posta adresiniz]</p>
+    <a class="email-btn" href="mailto:info@parkmark.app?subject=Hesap%20Silme%20Talebi&body=Merhaba%2C%0AParkMark%20hesab%C4%B1m%C4%B1%20silmek%20istiyorum.%0AHesap%20e-postas%C4%B1%3A%20">
+      ✉️ Talep E-postası Gönder
+    </a>
+  </div>
+
+  <!-- Data retention -->
+  <div class="card">
+    <h2>Silinen ve Saklanan Veriler</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Veri Türü</th>
+          <th>İşlem</th>
+          <th>Saklama Süresi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Park kayıtları ve notlar</td>
+          <td>Kalıcı olarak silindi</td>
+          <td>Anında (talep anında)</td>
+        </tr>
+        <tr>
+          <td>Park fotoğrafları</td>
+          <td>Kalıcı olarak silindi</td>
+          <td>30 gün içinde</td>
+        </tr>
+        <tr>
+          <td>Hesap bilgileri (e-posta, ad)</td>
+          <td>Kalıcı olarak silindi</td>
+          <td>Anında</td>
+        </tr>
+        <tr>
+          <td>Push token</td>
+          <td>Kalıcı olarak silindi</td>
+          <td>Anında</td>
+        </tr>
+        <tr>
+          <td>Abonelik geçmişi</td>
+          <td>Anonimleştirilerek saklanır</td>
+          <td>Yasal yükümlülük gereği 3 yıl</td>
+        </tr>
+        <tr>
+          <td>Anonim kullanım istatistikleri</td>
+          <td>Anonimleştirilmiş olarak kalır</td>
+          <td>Süresiz (kişisel veri içermez)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Partial deletion -->
+  <div class="card">
+    <h2>Hesabı Silmeden Veri Silme</h2>
+    <p>Hesabınızı silmeden de belirli verilerinizi kaldırabilirsiniz:</p>
+    <ul>
+      <li>Her park kaydını tek tek silebilirsiniz (Geçmiş → Kayıt → Sil)</li>
+      <li>Park fotoğraflarını kaydı düzenleyerek kaldırabilirsiniz</li>
+      <li>Bildirim tercihlerinizi Ayarlar'dan değiştirebilirsiniz</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 ParkMark · <a href="mailto:info@parkmark.app" style="color:#90cdf4;">info@parkmark.app</a>
+</footer>
+
+</body>
+</html>
