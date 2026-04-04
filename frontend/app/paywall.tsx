@@ -19,21 +19,25 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../constants/theme';
 import { GlassCard } from '../components/ui/GlassCard';
 
+// rcIdentifier → RevenueCat package identifier ($rc_*)
 const PLANS = [
   {
     id: 'monthly',
+    rcIdentifier: '$rc_monthly',
     label: 'Aylık',
     price: '$2.99',
     highlight: false,
   },
   {
     id: 'sixMonth',
+    rcIdentifier: '$rc_six_month',
     label: '6 Aylık',
     price: '$12.99',
     highlight: false,
   },
   {
     id: 'yearly',
+    rcIdentifier: '$rc_annual',
     label: 'Yıllık',
     price: '$19.99',
     badge: 'En İyi Değer',
@@ -94,8 +98,9 @@ export default function PaywallScreen() {
       Alert.alert('Hata', 'Abonelik paketleri yüklenemedi.');
       return;
     }
+    const selectedPlanObj = PLANS.find(p => p.id === selectedPlan);
     const pkg = offerings.availablePackages?.find(
-      (p: any) => p.product?.identifier?.includes(selectedPlan)
+      (p: any) => p.identifier === selectedPlanObj?.rcIdentifier
     );
     if (!pkg) {
       Alert.alert('Hata', 'Seçilen paket bulunamadı.');
