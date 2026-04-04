@@ -1,9 +1,17 @@
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import { Platform } from 'react-native';
+
+const getApiKey = () => {
+  if (Platform.OS === 'ios') {
+    return process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY!;
+  }
+  return process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY!;
+};
 
 export const initializePurchases = (userId: string) => {
   Purchases.setLogLevel(LOG_LEVEL.DEBUG);
   Purchases.configure({
-    apiKey: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY!,
+    apiKey: getApiKey(),
     appUserID: userId,
   });
 };
