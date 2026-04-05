@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 export const requestLocationPermission = async (): Promise<boolean> => {
   try {
@@ -49,20 +49,3 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   }
 };
 
-export const showPermissionDeniedAlert = (permissionType: string, message: string) => {
-  Alert.alert(
-    `${permissionType} Permission Denied`,
-    message,
-    [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Open Settings', onPress: () => {
-        // Open app settings - platform specific
-        if (Platform.OS === 'ios') {
-          // Linking.openURL('app-settings:');
-        } else if (Platform.OS === 'android') {
-          // Linking.openSettings();
-        }
-      }},
-    ]
-  );
-};

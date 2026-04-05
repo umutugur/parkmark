@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import {
   TextInput,
   View,
@@ -15,14 +15,14 @@ interface InputProps extends TextInputProps {
   containerStyle?: any;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = forwardRef<TextInput, InputProps>(({
   label,
   error,
   containerStyle,
   onFocus,
   onBlur,
   ...props
-}) => {
+}, ref) => {
   const [isFocused, setIsFocused] = useState(false);
   const [labelPosition] = useState(new Animated.Value(props.value ? 1 : 0));
 
@@ -73,11 +73,13 @@ export const Input: React.FC<InputProps> = ({
           {label}
         </Animated.Text>
         <TextInput
+          ref={ref}
           {...props}
           style={[
             styles.input,
             isFocused && styles.inputFocused,
             error && styles.inputError,
+            props.multiline && styles.inputMultiline,
           ]}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -87,7 +89,7 @@ export const Input: React.FC<InputProps> = ({
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -103,8 +105,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.surface,
     paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.md,
     fontSize: FontSizes.body,
     color: Colors.textPrimary,
+  },
+  inputMultiline: {
+    height: 'auto' as any,
+    minHeight: 80,
+    paddingTop: Spacing.lg,
+    textAlignVertical: 'top',
   },
   inputFocused: {
     borderColor: Colors.primary,

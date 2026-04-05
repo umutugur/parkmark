@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -18,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../constants/theme';
 import { GlassCard } from '../components/ui/GlassCard';
+import { AppModal, AppModalProps } from '../components/ui/AppModal';
 
 // rcIdentifier → RevenueCat package identifier ($rc_*)
 const PLANS = [
@@ -52,6 +52,11 @@ export default function PaywallScreen() {
   const router = useRouter();
   const { refreshUser } = useAuth();
   const insets = useSafeAreaInsets();
+  const [modal, setModal] = useState<Omit<AppModalProps, 'onClose'>>({ visible: false });
+  const showAlert = (title: string, message?: string, buttons?: AppModalProps['buttons']) =>
+    setModal({ visible: true, title, message, buttons });
+  const hideModal = () => setModal((m) => ({ ...m, visible: false }));
+
   const [offerings, setOfferings] = useState<any>(null);
   const [selectedPlan, setSelectedPlan] = useState<string>('yearly');
   const [loading, setLoading] = useState(false);
@@ -66,8 +71,17 @@ export default function PaywallScreen() {
   const loadOfferings = async () => {
     try {
       const current = await getOfferings();
+      if (__DEV__) {
+        console.log('[Paywall] current offering:', JSON.stringify(current, null, 2));
+        console.log('[Paywall] packages:', current?.availablePackages?.map((p: any) => ({
+          id: p.identifier,
+          type: p.packageType,
+          productId: p.product?.identifier,
+        })));
+      }
       setOfferings(current);
-    } catch {
+    } catch (err) {
+      console.error('[Paywall] offerings error:', err);
       // silently fail, use fallback UI
     }
   };
@@ -83,7 +97,7 @@ export default function PaywallScreen() {
         await apiService.activateFreemium();
         router.back();
       } catch {
-        Alert.alert('Hata', 'Freemium aktivasyonu başarısız.');
+        showAlert('Hata', 'Freemium aktivasyonu başarısız.');
       }
     });
     ad.load();
@@ -95,7 +109,7 @@ export default function PaywallScreen() {
       return;
     }
     if (!offerings) {
-      Alert.alert('Hata', 'Abonelik paketleri yüklenemedi.');
+      showAlert('Hata', 'Abonelik paketleri yüklenemedi.');
       return;
     }
     const selectedPlanObj = PLANS.find(p => p.id === selectedPlan);
@@ -103,17 +117,31 @@ export default function PaywallScreen() {
       (p: any) => p.identifier === selectedPlanObj?.rcIdentifier
     );
     if (!pkg) {
-      Alert.alert('Hata', 'Seçilen paket bulunamadı.');
+      showAlert('Hata', 'Seçilen paket bulunamadı.');
       return;
     }
     setLoading(true);
     try {
-      await purchasePackage(pkg);
-      await refreshUser(); // premium durumunu anında güncelle
+      const customerInfo = await purchasePackage(pkg);
+      // RC customerInfo'dan pro entitlement'ı okuyup MongoDB'yi anında güncelle
+      const proEntitlement = customerInfo?.entitlements?.active?.['pro'];
+      if (proEntitlement) {
+        const productPlanMap: Record<string, string> = {
+          parkmark_monthly: 'monthly',
+          parkmark_6month: 'sixMonth',
+          parkmark_yearly: 'yearly',
+        };
+        await apiService.syncSubscription({
+          isSubscribed: true,
+          plan: productPlanMap[proEntitlement.productIdentifier] ?? 'monthly',
+          expiresAt: proEntitlement.expirationDate ?? null,
+        }).catch(() => {}); // sync başarısız olsa da devam et
+      }
+      await refreshUser();
       router.back();
     } catch (err: any) {
       if (!err.userCancelled) {
-        Alert.alert('Hata', 'Satın alma işlemi başarısız.');
+        showAlert('Hata', 'Satın alma işlemi başarısız.');
       }
     } finally {
       setLoading(false);
@@ -126,14 +154,14 @@ export default function PaywallScreen() {
       return;
     }
     if (!rewardedAd) {
-      Alert.alert('Reklam Hazır Değil', 'Lütfen birkaç saniye bekleyip tekrar deneyin.');
+      showAlert('Reklam Hazır Değil', 'Lütfen birkaç saniye bekleyip tekrar deneyin.');
       return;
     }
     setAdLoading(true);
     try {
       await rewardedAd.show();
     } catch {
-      Alert.alert('Hata', 'Reklam gösterilemedi.');
+      showAlert('Hata', 'Reklam gösterilemedi.');
     } finally {
       setAdLoading(false);
     }
@@ -146,12 +174,24 @@ export default function PaywallScreen() {
     }
     setLoading(true);
     try {
-      await restorePurchases();
-      await refreshUser(); // premium durumunu anında güncelle
-      Alert.alert('Başarılı', 'Satın alımlar geri yüklendi.');
-      router.back();
+      const customerInfo = await restorePurchases();
+      const proEntitlement = customerInfo?.entitlements?.active?.['pro'];
+      const productPlanMap: Record<string, string> = {
+        parkmark_monthly: 'monthly',
+        parkmark_6month: 'sixMonth',
+        parkmark_yearly: 'yearly',
+      };
+      await apiService.syncSubscription({
+        isSubscribed: !!proEntitlement,
+        plan: proEntitlement ? (productPlanMap[proEntitlement.productIdentifier] ?? 'monthly') : undefined,
+        expiresAt: proEntitlement?.expirationDate ?? null,
+      }).catch(() => {});
+      await refreshUser();
+      showAlert('Başarılı', 'Satın alımlar geri yüklendi.', [
+        { text: 'Tamam', onPress: () => router.back() },
+      ]);
     } catch {
-      Alert.alert('Hata', 'Geri yükleme başarısız.');
+      showAlert('Hata', 'Geri yükleme başarısız.');
     } finally {
       setLoading(false);
     }
@@ -159,6 +199,7 @@ export default function PaywallScreen() {
 
   return (
     <LinearGradient colors={[Colors.bgDeep, Colors.bgPrimary]} style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + Spacing.lg }]}>
+      <AppModal {...modal} onClose={hideModal} />
       {/* Close */}
       <TouchableOpacity style={[styles.closeButton, { top: insets.top + 10 }]} onPress={() => router.back()}>
         <Ionicons name="close" size={24} color={Colors.textPrimary} />

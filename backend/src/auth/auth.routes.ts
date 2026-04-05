@@ -64,6 +64,29 @@ export async function authRoutes(app: FastifyInstance) {
     }
   });
 
+  // Satın alma sonrası RC customerInfo'dan subscription durumunu senkronize et
+  app.post('/auth/sync-subscription', { preHandler: authenticate }, async (request, reply) => {
+    try {
+      const { User } = await import('./user.schema');
+      const payload = (request as any).user;
+      const { isSubscribed, plan, expiresAt } = request.body as any;
+
+      const user = await User.findById(payload.sub);
+      if (!user) {
+        return reply.status(404).send({ statusCode: 404, message: 'User not found' });
+      }
+
+      user.isSubscribed = isSubscribed === true;
+      user.subscriptionPlan = isSubscribed ? (plan ?? null) : null;
+      user.subscriptionExpiresAt = isSubscribed && expiresAt ? new Date(expiresAt) : null;
+      await user.save();
+
+      return reply.send({ success: true });
+    } catch (err: any) {
+      return reply.status(err.statusCode || 500).send({ statusCode: err.statusCode || 500, message: err.message });
+    }
+  });
+
   app.post('/auth/freemium', { preHandler: authenticate }, async (request, reply) => {
     try {
       const { User } = await import('./user.schema');

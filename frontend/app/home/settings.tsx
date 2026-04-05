@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Switch,
   Linking,
   Platform,
@@ -16,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { AppModal, AppModalProps } from '../../components/ui/AppModal';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { changeLanguage } from '../../config/i18n';
@@ -39,6 +39,11 @@ export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const insets = useSafeAreaInsets();
+  const [modal, setModal] = useState<Omit<AppModalProps, 'onClose'>>({ visible: false });
+  const showAlert = (title: string, message?: string, buttons?: AppModalProps['buttons']) =>
+    setModal({ visible: true, title, message, buttons });
+  const hideModal = () => setModal((m) => ({ ...m, visible: false }));
+
   const [remindersEnabled, setRemindersEnabled] = useState(false);
   const [marketingEnabled, setMarketingEnabled] = useState(false);
 
@@ -88,17 +93,13 @@ export default function SettingsScreen() {
             apiService.updateNotificationPrefs({ marketingNotificationsEnabled: true }).catch(() => {});
           }
         } else {
-          Alert.alert(
-            t('settings.notificationsPermissionTitle'),
-            t('settings.notificationsPermissionBody'),
-            [
-              { text: t('common.cancel'), style: 'cancel' },
-              {
-                text: t('settings.openSettings'),
-                onPress: () => Linking.openURL('app-settings:'),
-              },
-            ]
-          );
+          showAlert(t('settings.notificationsPermissionTitle'), t('settings.notificationsPermissionBody'), [
+            { text: t('common.cancel'), style: 'cancel' },
+            {
+              text: t('settings.openSettings'),
+              onPress: () => Linking.openURL('app-settings:'),
+            },
+          ]);
         }
       }
     } else {
@@ -117,18 +118,14 @@ export default function SettingsScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      t('auth.logout'),
-      t('auth.logoutConfirm'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('auth.logout'),
-          style: 'destructive',
-          onPress: async () => { await logout(); },
-        },
-      ]
-    );
+    showAlert(t('auth.logout'), t('auth.logoutConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('auth.logout'),
+        style: 'destructive',
+        onPress: async () => { await logout(); },
+      },
+    ]);
   };
 
   const getInitials = (name: string): string => {
@@ -141,6 +138,7 @@ export default function SettingsScreen() {
 
   return (
     <LinearGradient colors={[Colors.bgDeep, Colors.bgPrimary]} style={styles.container}>
+      <AppModal {...modal} onClose={hideModal} />
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>

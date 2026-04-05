@@ -8,7 +8,6 @@ import {
   Platform,
   TouchableOpacity,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -18,6 +17,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { Input } from '../../components/ui/Input';
+import { AppModal, AppModalProps } from '../../components/ui/AppModal';
 import { Button } from '../../components/ui/Button';
 import { Colors, FontSizes, FontWeights, Spacing, BorderRadius } from '../../constants/theme';
 import { changeLanguage } from '../../config/i18n';
@@ -35,6 +35,11 @@ export default function LoginScreen() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TabType>('login');
+  const [modal, setModal] = useState<Omit<AppModalProps, 'onClose'>>({ visible: false });
+  const showAlert = (title: string, message?: string, buttons?: AppModalProps['buttons']) =>
+    setModal({ visible: true, title, message, buttons });
+  const hideModal = () => setModal((m) => ({ ...m, visible: false }));
+
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
@@ -92,11 +97,9 @@ export default function LoginScreen() {
     try {
       if (activeTab === 'login') {
         await login(email, password);
-        Alert.alert(t('common.success'), t('auth.loginSuccess'));
         router.replace('/home');
       } else {
         await signup(email, password, name);
-        Alert.alert(t('common.success'), t('auth.signupSuccess'));
         router.replace('/home');
       }
     } catch (error: any) {
@@ -104,7 +107,7 @@ export default function LoginScreen() {
         activeTab === 'login'
           ? t('auth.loginError')
           : t('auth.signupError');
-      Alert.alert(t('common.error'), message);
+      showAlert(t('common.error'), message);
     } finally {
       setLoading(false);
     }
@@ -112,7 +115,7 @@ export default function LoginScreen() {
 
   const handleGoogleSignIn = async () => {
     if (isExpoGo) {
-      Alert.alert('Expo Go', 'Google Sign-In Expo Go\'da çalışmaz. Dev build gerektirir.');
+      showAlert('Expo Go', "Google Sign-In Expo Go'da çalışmaz. Dev build gerektirir.");
       return;
     }
     setOauthLoading('google');
@@ -123,7 +126,7 @@ export default function LoginScreen() {
     } catch (err: any) {
       if (err?.message !== 'Google sign-in cancelled') {
         console.error('[Google SignIn Error]', JSON.stringify(err), err?.message, err?.code);
-        Alert.alert(t('common.error'), `Google ile giriş başarısız.\n\n${err?.message || err?.code || JSON.stringify(err)}`);
+        showAlert(t('common.error'), `Google ile giriş başarısız.\n\n${err?.message || err?.code || JSON.stringify(err)}`);
       }
     } finally {
       setOauthLoading(null);
@@ -138,7 +141,7 @@ export default function LoginScreen() {
       router.replace('/home');
     } catch (err: any) {
       if (err?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert(t('common.error'), 'Apple ile giriş başarısız.');
+        showAlert(t('common.error'), 'Apple ile giriş başarısız.');
       }
     } finally {
       setOauthLoading(null);
@@ -152,6 +155,7 @@ export default function LoginScreen() {
 
   return (
     <LinearGradient colors={[Colors.bgDeep, Colors.bgPrimary]} style={styles.container}>
+      <AppModal {...modal} onClose={hideModal} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}

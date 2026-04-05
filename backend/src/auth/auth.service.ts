@@ -139,5 +139,15 @@ export async function getMe(userId: string) {
   if (!user) {
     throw { statusCode: 404, message: 'User not found' };
   }
+
+  // Abonelik süresi dolmuşsa isSubscribed'ı güncelle (webhook gecikse bile doğru değer döner)
+  const now = new Date();
+  if (user.isSubscribed && user.subscriptionExpiresAt && user.subscriptionExpiresAt < now) {
+    user.isSubscribed = false;
+    user.subscriptionPlan = null;
+    user.subscriptionExpiresAt = null;
+    await user.save();
+  }
+
   return { user };
 }

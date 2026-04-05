@@ -187,7 +187,10 @@ class ApiService {
     formData.append('signature', presignedData.signature);
     formData.append('public_id', presignedData.public_id);
 
-    const response = await axios.post(presignedData.upload_url, formData);
+    const response = await axios.post(presignedData.upload_url, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      transformRequest: (data) => data,
+    });
     return { secure_url: response.data.secure_url };
   }
 
@@ -215,6 +218,18 @@ class ApiService {
   async deleteFile(fileId: string): Promise<{ success: boolean }> {
     const response = await this.client.delete<{ success: boolean }>(
       new URL(`/api/files/${fileId}`, API_URL).toString()
+    );
+    return response?.data ?? { success: false };
+  }
+
+  async syncSubscription(data: {
+    isSubscribed: boolean;
+    plan?: string;
+    expiresAt?: string | null;
+  }): Promise<{ success: boolean }> {
+    const response = await this.client.post<{ success: boolean }>(
+      new URL('/api/auth/sync-subscription', API_URL).toString(),
+      data
     );
     return response?.data ?? { success: false };
   }

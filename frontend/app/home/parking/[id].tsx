@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Image,
   Modal,
   StatusBar,
@@ -16,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../../components/ui/GlassCard';
+import { AppModal, AppModalProps } from '../../../components/ui/AppModal';
 import { Button } from '../../../components/ui/Button';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../../../constants/theme';
@@ -31,6 +31,11 @@ export default function ParkingDetailScreen() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const [modal, setModal] = useState<Omit<AppModalProps, 'onClose'>>({ visible: false });
+  const showAlert = (title: string, message?: string, buttons?: AppModalProps['buttons']) =>
+    setModal({ visible: true, title, message, buttons });
+  const hideModal = () => setModal((m) => ({ ...m, visible: false }));
+
   const [parking, setParking] = useState<ParkingRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -51,8 +56,9 @@ export default function ParkingDetailScreen() {
         setPhotoUrl(record.photoCloudStoragePath);
       }
     } catch (error) {
-      Alert.alert(t('common.error'), t('errors.somethingWentWrong'));
-      router.back();
+      showAlert(t('common.error'), t('errors.somethingWentWrong'), [
+        { text: 'Tamam', onPress: () => router.back() },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -75,25 +81,20 @@ export default function ParkingDetailScreen() {
   };
 
   const handlePickedUp = () => {
-    Alert.alert(
-      t('parkingDetail.pickedUpConfirm'),
-      t('parkingDetail.pickedUpMessage'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.yes'),
-          onPress: async () => {
-            try {
-              await apiService.updateParking(id ?? '', { isActive: false });
-              Alert.alert(t('common.success'), t('parkingDetail.pickedUpSuccess'));
-              router.replace('/home');
-            } catch (error) {
-              Alert.alert(t('common.error'), t('errors.somethingWentWrong'));
-            }
-          },
+    showAlert(t('parkingDetail.pickedUpConfirm'), t('parkingDetail.pickedUpMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('common.yes'),
+        onPress: async () => {
+          try {
+            await apiService.updateParking(id ?? '', { isActive: false });
+            router.replace('/home');
+          } catch (error) {
+            showAlert(t('common.error'), t('errors.somethingWentWrong'));
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   if (loading || !parking) {
@@ -102,6 +103,7 @@ export default function ParkingDetailScreen() {
 
   return (
     <LinearGradient colors={[Colors.bgDeep, Colors.bgPrimary]} style={styles.container}>
+      <AppModal {...modal} onClose={hideModal} />
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>

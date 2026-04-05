@@ -24,9 +24,9 @@ export async function webhookRoutes(app: FastifyInstance) {
 
       if (eventType === 'INITIAL_PURCHASE' || eventType === 'RENEWAL') {
         const planMap: Record<string, 'monthly' | 'sixMonth' | 'yearly'> = {
-          monthly: 'monthly',
-          six_month: 'sixMonth',
-          yearly: 'yearly',
+          parkmark_monthly: 'monthly',
+          parkmark_6month: 'sixMonth',
+          parkmark_yearly: 'yearly',
         };
         const plan = planMap[event.product_id] ?? 'monthly';
         const expiresAt = event.expiration_at_ms

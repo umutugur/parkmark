@@ -104,6 +104,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const userData = await apiService.getMe();
       setUser(userData?.user ?? null);
       setToken(authToken);
+      // RevenueCat her zaman initialize edilmeli (uygulama yeniden açıldığında da)
+      if (userData?.user?.id) {
+        initializePurchases(userData.user.id);
+      }
       // Token kaydı arka planda — UI'yi bloklamaz
       registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
     } catch (error) {

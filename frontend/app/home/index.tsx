@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Platform,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -14,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { AppModal } from '../../components/ui/AppModal';
 import { Button } from '../../components/ui/Button';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,7 +28,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { requireAuth } = useAuthGuard();
+  const { requireAuth, modalProps, hideModal } = useAuthGuard();
   const mapRef = useRef<MapView>(null);
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
@@ -38,13 +38,12 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [duration, setDuration] = useState('');
 
+  const [locationModal, setLocationModal] = useState({ visible: false });
+
   const loadCurrentLocation = async () => {
     const hasPermission = await requestLocationPermission();
     if (!hasPermission) {
-      Alert.alert(
-        t('common.error'),
-        t('home.locationPermissionDenied')
-      );
+      setLocationModal({ visible: true });
       return;
     }
 
@@ -54,8 +53,8 @@ export default function HomeScreen() {
       mapRef.current?.animateToRegion({
         latitude: location.latitude,
         longitude: location.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.003,
+        longitudeDelta: 0.003,
       });
     }
   };
@@ -70,8 +69,8 @@ export default function HomeScreen() {
         mapRef.current?.animateToRegion({
           latitude: active.latitude,
           longitude: active.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.003,
+          longitudeDelta: 0.003,
         });
       }
     } catch (error) {
@@ -140,6 +139,13 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <AppModal {...modalProps} onClose={hideModal} />
+      <AppModal
+        visible={locationModal.visible}
+        title={t('common.error')}
+        message={t('home.locationPermissionDenied')}
+        onClose={() => setLocationModal({ visible: false })}
+      />
       {/* Map */}
       <MapView
         ref={mapRef}
@@ -150,8 +156,8 @@ export default function HomeScreen() {
         initialRegion={{
           latitude: currentLocation?.latitude ?? 41.0082,
           longitude: currentLocation?.longitude ?? 28.9784,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.003,
+          longitudeDelta: 0.003,
         }}
       >
         {activeParking && (

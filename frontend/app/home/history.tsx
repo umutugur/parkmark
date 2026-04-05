@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Alert,
   RefreshControl,
   Image,
 } from 'react-native';
@@ -14,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from '../../components/ui/GlassCard';
+import { AppModal, AppModalProps } from '../../components/ui/AppModal';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,6 +38,11 @@ export default function HistoryScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const [modal, setModal] = useState<Omit<AppModalProps, 'onClose'>>({ visible: false });
+  const showAlert = (title: string, message?: string, buttons?: AppModalProps['buttons']) =>
+    setModal({ visible: true, title, message, buttons });
+  const hideModal = () => setModal((m) => ({ ...m, visible: false }));
+
   const [parkingRecords, setParkingRecords] = useState<ParkingRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -52,7 +57,7 @@ export default function HistoryScreen() {
       const response = await apiService.getParkingList(params);
       setParkingRecords(response?.items ?? []);
     } catch (error) {
-      Alert.alert(t('common.error'), t('history.loadingError'));
+      showAlert(t('common.error'), t('history.loadingError'));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -75,26 +80,21 @@ export default function HistoryScreen() {
   };
 
   const handleDelete = async (id: string) => {
-    Alert.alert(
-      t('history.deleteConfirm'),
-      '',
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await apiService.deleteParking(id);
-              Alert.alert(t('common.success'), t('history.deleteSuccess'));
-              loadParkingRecords();
-            } catch (error) {
-              Alert.alert(t('common.error'), t('history.deleteError'));
-            }
-          },
+    showAlert(t('history.deleteConfirm'), undefined, [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('common.delete'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await apiService.deleteParking(id);
+            loadParkingRecords();
+          } catch (error) {
+            showAlert(t('common.error'), t('history.deleteError'));
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   // Her 4 park itemından sonra reklam ekleyerek mixed list oluştur
@@ -196,6 +196,7 @@ export default function HistoryScreen() {
 
   return (
     <LinearGradient colors={[Colors.bgDeep, Colors.bgPrimary]} style={styles.container}>
+      <AppModal {...modal} onClose={hideModal} />
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>

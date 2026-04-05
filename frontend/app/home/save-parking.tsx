@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert,
   Platform,
   KeyboardAvoidingView,
   ActionSheetIOS,
+  TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,6 +21,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { AppModal, AppModalProps } from '../../components/ui/AppModal';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { requestCameraPermission, requestGalleryPermission } from '../../utils/permissions';
@@ -41,6 +42,16 @@ export default function SaveParkingScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const isEditMode = !!id;
+
+  const floorRef = useRef<TextInput>(null);
+  const sectionRef = useRef<TextInput>(null);
+  const spotRef = useRef<TextInput>(null);
+  const notesRef = useRef<TextInput>(null);
+
+  const [modal, setModal] = useState<Omit<AppModalProps, 'onClose'>>({ visible: false });
+  const showAlert = (title: string, message?: string, buttons?: AppModalProps['buttons']) =>
+    setModal({ visible: true, title, message, buttons });
+  const hideModal = () => setModal((m) => ({ ...m, visible: false }));
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditMode);
@@ -78,8 +89,9 @@ export default function SaveParkingScreen() {
         setReminderEnabled(true);
       }
     } catch (error) {
-      Alert.alert(t('common.error'), t('errors.somethingWentWrong'));
-      router.back();
+      showAlert(t('common.error'), t('errors.somethingWentWrong'), [
+        { text: t('common.ok') ?? 'Tamam', onPress: () => router.back() },
+      ]);
     } finally {
       setInitialLoading(false);
     }
@@ -111,22 +123,18 @@ export default function SaveParkingScreen() {
         }
       );
     } else {
-      Alert.alert(
-        t('saveParking.addPhoto'),
-        '',
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          { text: t('saveParking.takePhoto'), onPress: handleTakePhoto },
-          { text: t('saveParking.chooseFromGallery'), onPress: handleChoosePhoto },
-        ]
-      );
+      showAlert(t('saveParking.addPhoto'), undefined, [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('saveParking.takePhoto'), onPress: handleTakePhoto },
+        { text: t('saveParking.chooseFromGallery'), onPress: handleChoosePhoto },
+      ]);
     }
   };
 
   const handleTakePhoto = async () => {
     const hasPermission = await requestCameraPermission();
     if (!hasPermission) {
-      Alert.alert(t('common.error'), t('saveParking.cameraPermissionDenied'));
+      showAlert(t('common.error'), t('saveParking.cameraPermissionDenied'));
       return;
     }
 
@@ -151,7 +159,7 @@ export default function SaveParkingScreen() {
   const handleChoosePhoto = async () => {
     const hasPermission = await requestGalleryPermission();
     if (!hasPermission) {
-      Alert.alert(t('common.error'), t('saveParking.galleryPermissionDenied'));
+      showAlert(t('common.error'), t('saveParking.galleryPermissionDenied'));
       return;
     }
 
@@ -204,7 +212,7 @@ export default function SaveParkingScreen() {
 
   const handleSave = async () => {
     if (!location) {
-      Alert.alert(t('common.error'), t('home.locationError'));
+      showAlert(t('common.error'), t('home.locationError'));
       return;
     }
 
@@ -234,11 +242,10 @@ export default function SaveParkingScreen() {
 
       if (isEditMode && id) {
         await apiService.updateParking(id, parkingData);
-        Alert.alert(t('common.success'), t('saveParking.updateSuccess'));
+        showAlert(t('common.success'), t('saveParking.updateSuccess'), [
+          { text: 'Tamam', onPress: () => router.replace('/home') },
+        ]);
       } else {
-        await apiService.createParking(parkingData);
-        Alert.alert(t('common.success'), t('saveParking.saveSuccess'));
-
         // Schedule reminder notification
         if (reminderEnabled) {
           const hasNotifPermission = await requestNotificationPermission();
@@ -251,9 +258,9 @@ export default function SaveParkingScreen() {
             );
           }
         }
+        await apiService.createParking(parkingData);
+        router.replace('/home');
       }
-
-      router.replace('/home');
     } catch (error: any) {
       const isLimitError =
         error?.response?.status === 403 &&
@@ -261,7 +268,7 @@ export default function SaveParkingScreen() {
       if (isLimitError) {
         router.push('/paywall');
       } else {
-        Alert.alert(t('common.error'), t('saveParking.saveError'));
+        showAlert(t('common.error'), t('saveParking.saveError'));
       }
     } finally {
       setLoading(false);
@@ -270,14 +277,10 @@ export default function SaveParkingScreen() {
 
   const handleBack = () => {
     if (hasChanges) {
-      Alert.alert(
-        t('saveParking.discardChanges'),
-        t('saveParking.discardMessage'),
-        [
-          { text: t('common.no'), style: 'cancel' },
-          { text: t('common.yes'), onPress: () => router.back() },
-        ]
-      );
+      showAlert(t('saveParking.discardChanges'), t('saveParking.discardMessage'), [
+        { text: t('common.no'), style: 'cancel' },
+        { text: t('common.yes'), onPress: () => router.back() },
+      ]);
     } else {
       router.back();
     }
@@ -289,6 +292,7 @@ export default function SaveParkingScreen() {
 
   return (
     <LinearGradient colors={[Colors.bgDeep, Colors.bgPrimary]} style={styles.container}>
+      <AppModal {...modal} onClose={hideModal} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -316,8 +320,8 @@ export default function SaveParkingScreen() {
               initialRegion={{
                 latitude: location.latitude,
                 longitude: location.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
+                latitudeDelta: 0.0015,
+                longitudeDelta: 0.0015,
               }}
               scrollEnabled={false}
               zoomEnabled={false}
@@ -355,42 +359,44 @@ export default function SaveParkingScreen() {
           {/* Details Section */}
           <GlassCard style={styles.section}>
             <Input
+              ref={floorRef}
               label={t('saveParking.floor')}
               value={floor}
-              onChangeText={(text) => {
-                setFloor(text);
-                setHasChanges(true);
-              }}
+              onChangeText={(text) => { setFloor(text); setHasChanges(true); }}
               placeholder="e.g., 2"
+              returnKeyType="next"
+              onSubmitEditing={() => sectionRef.current?.focus()}
+              blurOnSubmit={false}
             />
             <Input
+              ref={sectionRef}
               label={t('saveParking.section')}
               value={section}
-              onChangeText={(text) => {
-                setSection(text);
-                setHasChanges(true);
-              }}
+              onChangeText={(text) => { setSection(text); setHasChanges(true); }}
               placeholder="e.g., A"
+              returnKeyType="next"
+              onSubmitEditing={() => spotRef.current?.focus()}
+              blurOnSubmit={false}
             />
             <Input
+              ref={spotRef}
               label={t('saveParking.spotNumber')}
               value={spotNumber}
-              onChangeText={(text) => {
-                setSpotNumber(text);
-                setHasChanges(true);
-              }}
+              onChangeText={(text) => { setSpotNumber(text); setHasChanges(true); }}
               placeholder="e.g., 42"
+              returnKeyType="next"
+              onSubmitEditing={() => notesRef.current?.focus()}
+              blurOnSubmit={false}
             />
             <Input
+              ref={notesRef}
               label={t('saveParking.notes')}
               value={notes}
-              onChangeText={(text) => {
-                setNotes(text);
-                setHasChanges(true);
-              }}
+              onChangeText={(text) => { setNotes(text); setHasChanges(true); }}
               multiline
               numberOfLines={3}
-              style={{ height: 80 }}
+              returnKeyType="done"
+              blurOnSubmit
             />
           </GlassCard>
 
