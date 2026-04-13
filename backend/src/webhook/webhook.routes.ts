@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { User } from '../auth/user.schema';
+import { AdminLog } from '../admin/adminlog.schema';
 
 export async function webhookRoutes(app: FastifyInstance) {
   app.post('/revenuecat', async (request, reply) => {
@@ -43,6 +44,21 @@ export async function webhookRoutes(app: FastifyInstance) {
         user.subscriptionExpiresAt = null;
         await user.save();
       }
+
+      // Log the webhook event for admin visibility
+      try {
+        await AdminLog.create({
+          adminUser: 'revenuecat_webhook',
+          action: eventType,
+          targetType: 'webhook',
+          targetId: appUserId,
+          details: {
+            product_id: event.product_id,
+            expiration_at_ms: event.expiration_at_ms,
+            raw_event_type: eventType,
+          },
+        });
+      } catch { /* non-blocking */ }
 
       return reply.status(200).send({ received: true });
     } catch (err: any) {

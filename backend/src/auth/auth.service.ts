@@ -71,6 +71,10 @@ export async function login(
     throw { statusCode: 401, message: 'Invalid credentials' };
   }
 
+  if ((user as any).banned) {
+    throw { statusCode: 403, message: 'Account suspended' };
+  }
+
   const token = app.jwt.sign(
     { sub: user._id.toString(), email: user.email },
     { expiresIn: '7d' },

@@ -9,6 +9,7 @@ import { parkingRoutes } from './parking/parking.routes';
 import { uploadRoutes } from './upload/upload.routes';
 import { filesRoutes } from './files/files.routes';
 import { webhookRoutes } from './webhook/webhook.routes';
+import { adminRoutes } from './admin/admin.routes';
 
 export async function buildApp() {
   const app = Fastify({ logger: true });
@@ -47,6 +48,7 @@ export async function buildApp() {
   await app.register(uploadRoutes, { prefix: '/api/upload' });
   await app.register(filesRoutes, { prefix: '/api/files' });
   await app.register(webhookRoutes, { prefix: '/api/webhook' });
+  await app.register(adminRoutes, { prefix: '/api/admin' });
 
   return app;
 }
