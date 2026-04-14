@@ -56,10 +56,6 @@ export const getExpoPushToken = async (): Promise<string | null> => {
   try {
     if (Platform.OS === 'web') return null;
 
-    // Simulator kontrolü
-    const isSimulator = !Constants.isDevice;
-    if (isSimulator) return null;
-
     const status = await getNotificationPermissionStatus();
     if (status !== 'granted') return null;
 
@@ -69,10 +65,11 @@ export const getExpoPushToken = async (): Promise<string | null> => {
       return null;
     }
 
+    // Simülatörde getExpoPushTokenAsync hata fırlatır, try/catch yakalar
     const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
     return tokenData.data;
   } catch (error) {
-    console.error('[Push] Token alınamadı:', error);
+    // Simülatör veya push desteklemeyen ortam — sessizce null döndür
     return null;
   }
 };

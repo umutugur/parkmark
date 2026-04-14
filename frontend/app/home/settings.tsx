@@ -27,6 +27,7 @@ import {
   MARKETING_NOTIF_KEY,
   getNotificationPermissionStatus,
   cancelAllNotifications,
+  registerPushToken,
 } from '../../utils/notifications';
 import { BANNER_AD_UNIT_ID } from '../../services/ads';
 import { apiService } from '../../services/api';
@@ -83,6 +84,8 @@ export default function SettingsScreen() {
         await AsyncStorage.setItem(key, 'true');
         if (type === 'marketing') {
           apiService.updateNotificationPrefs({ marketingNotificationsEnabled: true }).catch(() => {});
+          // Push token yoksa şimdi kaydet
+          registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
         }
       } else {
         const { status: newStatus } = await Notifications.requestPermissionsAsync();
@@ -90,7 +93,8 @@ export default function SettingsScreen() {
           setter(true);
           await AsyncStorage.setItem(key, 'true');
           if (type === 'marketing') {
-            apiService.updateNotificationPrefs({ marketingNotificationsEnabled: true }).catch(() => {});
+            // İzin yeni verildi — hem prefs güncelle hem token kaydet
+            registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
           }
         } else {
           showAlert(t('settings.notificationsPermissionTitle'), t('settings.notificationsPermissionBody'), [

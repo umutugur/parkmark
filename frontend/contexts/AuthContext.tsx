@@ -136,13 +136,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const response = await apiService.login(email, password);
     const newToken = response?.token ?? '';
     const userData = response?.user ?? null;
-    
+
     if (newToken && userData) {
       await saveToken(newToken);
       apiService.setToken(newToken);
       setToken(newToken);
       setUser(userData);
       initializePurchases(userData.id);
+      registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
     } else {
       throw new Error('Invalid login response');
     }
@@ -152,13 +153,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const response = await apiService.signup(email, password, name);
     const newToken = response?.token ?? '';
     const userData = response?.user ?? null;
-    
+
     if (newToken && userData) {
       await saveToken(newToken);
       apiService.setToken(newToken);
       setToken(newToken);
       setUser(userData);
       initializePurchases(userData.id);
+      registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
     } else {
       throw new Error('Invalid signup response');
     }
@@ -175,6 +177,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(newToken);
       setUser(userData);
       initializePurchases(userData.id);
+      registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
     } else {
       throw new Error('Invalid OAuth response');
     }
