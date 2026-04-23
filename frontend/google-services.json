@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "558893358130-jtv2saltbjcbnkdb1ld9h379a421t5n0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.parkmark.app",
+            "certificate_hash": "31399b3ff6533bcacb836e9534a2c1cfc661abc2"
+          }
+        },
+        {
           "client_id": "558893358130-vold4aapq959ivfieihve5ulgg5h36li.apps.googleusercontent.com",
           "client_type": 3
         }
