@@ -109,7 +109,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         initializePurchases(userData.user.id);
       }
       // Token kaydı arka planda — UI'yi bloklamaz
-      registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
+      // Kullanıcının DB'de push token'ı yoksa cache bypass ederek kaydet
+      const forceRegister = !userData?.user?.pushToken;
+      registerPushToken(
+        apiService.updateNotificationPrefs.bind(apiService),
+        forceRegister
+      ).catch(() => {});
     } catch (error) {
       console.error('Error loading user:', error);
       await removeToken();

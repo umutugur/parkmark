@@ -22,13 +22,16 @@ import { getCurrentLocation, openMapApp } from '../../utils/location';
 import { apiService } from '../../services/api';
 import { ParkingRecord } from '../../types';
 import { useAuthGuard } from '../../hooks/useAuthGuard';
+import { useAuth } from '../../contexts/AuthContext';
 import { formatDuration } from '../../utils/time';
+import { registerPushToken, getNotificationPermissionStatus } from '../../utils/notifications';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { requireAuth, modalProps, hideModal } = useAuthGuard();
+  const { user, isGuest } = useAuth();
   const mapRef = useRef<MapView>(null);
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
@@ -83,7 +86,27 @@ export default function HomeScreen() {
   useEffect(() => {
     loadCurrentLocation();
     loadActiveParking();
+    // Giriş yapmış kullanıcılar için bildirim izni iste ve push token kaydet
+    if (!isGuest) {
+      requestNotificationOnFirstVisit();
+    }
   }, []);
+
+  const requestNotificationOnFirstVisit = async () => {
+    try {
+      const status = await getNotificationPermissionStatus();
+      // İzin belirsizse sor, verilmişse token kaydet (token yoksa force)
+      if (status === 'undetermined' || status === 'granted') {
+        const forceRegister = !user?.pushToken;
+        await registerPushToken(
+          apiService.updateNotificationPrefs.bind(apiService),
+          forceRegister
+        );
+      }
+    } catch {
+      // sessizce devam et
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -168,9 +191,11 @@ export default function HomeScreen() {
             }}
             title={t('home.yourCarIsParked')}
             description={activeParking?.address ?? ''}
+            anchor={{ x: 0.5, y: 0.5 }}
           >
-            <View style={styles.markerContainer}>
-              <Ionicons name="car" size={30} color={Colors.primary} />
+            {/* collapsable={false} Android'de custom marker render sorununu çözer */}
+            <View style={styles.markerContainer} collapsable={false}>
+              <Ionicons name="car" size={22} color="white" />
             </View>
           </Marker>
         )}
@@ -277,11 +302,19 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   markerContainer: {
+    width: 44,
+    height: 44,
     backgroundColor: Colors.primary,
-    padding: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 3,
+    borderRadius: 22,
+    borderWidth: 2.5,
     borderColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   bottomCard: {
     position: 'absolute',

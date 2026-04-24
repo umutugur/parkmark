@@ -114,6 +114,13 @@ class ApiService {
     return response?.data ?? { success: false };
   }
 
+  async deleteAccount(): Promise<{ success: boolean }> {
+    const response = await this.client.delete<{ success: boolean }>(
+      new URL('/api/auth/me', API_URL).toString()
+    );
+    return response?.data ?? { success: false };
+  }
+
   // Parking endpoints
   async createParking(data: CreateParkingDto): Promise<ParkingRecord> {
     const response = await this.client.post<ParkingRecord>(

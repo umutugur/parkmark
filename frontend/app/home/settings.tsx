@@ -132,6 +132,28 @@ export default function SettingsScreen() {
     ]);
   };
 
+  const handleDeleteAccount = () => {
+    showAlert(
+      t('settings.deleteAccountConfirmTitle'),
+      t('settings.deleteAccountConfirmMessage'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('settings.deleteAccountConfirm'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await apiService.deleteAccount();
+              await logout();
+            } catch {
+              showAlert(t('common.error'), t('errors.somethingWentWrong'));
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const getInitials = (name: string): string => {
     const parts = name?.split(' ') ?? [];
     if (parts.length >= 2) {
@@ -369,6 +391,15 @@ export default function SettingsScreen() {
           <Ionicons name="log-out-outline" size={20} color="white" style={{ marginRight: Spacing.sm }} />
           <Text style={styles.logoutText}>{t('settings.logout')}</Text>
         </TouchableOpacity>
+
+        {/* Delete Account */}
+        <GlassCard style={styles.dangerSection}>
+          <Text style={styles.dangerSectionTitle}>{t('settings.deleteAccountSection')}</Text>
+          <TouchableOpacity style={styles.deleteAccountButton} onPress={handleDeleteAccount}>
+            <Ionicons name="trash-outline" size={18} color={Colors.error} style={{ marginRight: Spacing.sm }} />
+            <Text style={styles.deleteAccountText}>{t('settings.deleteAccount')}</Text>
+          </TouchableOpacity>
+        </GlassCard>
       </ScrollView>
     </LinearGradient>
   );
@@ -580,5 +611,30 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     overflow: 'hidden',
     marginBottom: Spacing.md,
+  },
+  dangerSection: {
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xl,
+    borderWidth: 1,
+    borderColor: `${Colors.error}40`,
+  },
+  dangerSectionTitle: {
+    fontSize: FontSizes.caption,
+    fontWeight: FontWeights.semibold,
+    color: Colors.error,
+    marginBottom: Spacing.md,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  deleteAccountButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+  },
+  deleteAccountText: {
+    fontSize: FontSizes.body,
+    color: Colors.error,
+    fontFamily: 'NunitoSans-Regular',
   },
 });

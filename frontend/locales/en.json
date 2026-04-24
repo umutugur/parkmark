@@ -150,7 +150,13 @@
     "appNotificationsDesc": "Updates, tips and news from ParkMark",
     "upgradeToPro": "Upgrade to Pro",
     "upgradeSubtitle": "Unlimited parking, ad-free experience",
-    "renewsOn": "Renews on {{date}}"
+    "renewsOn": "Renews on {{date}}",
+    "deleteAccount": "Delete Account",
+    "deleteAccountSection": "Danger Zone",
+    "deleteAccountConfirmTitle": "Permanently Delete Account",
+    "deleteAccountConfirmMessage": "This action cannot be undone. All your parking records, photos and data will be permanently deleted.",
+    "deleteAccountConfirm": "Yes, Delete My Account",
+    "deleteAccountSuccess": "Your account has been deleted"
   },
   "notifications": {
     "parkingReminder": "Time to check your parking!",

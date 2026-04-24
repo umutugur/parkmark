@@ -10,24 +10,15 @@ export default function SplashScreen() {
   const router = useRouter();
   const { token, isLoading, isGuest, isOnboardingCompleted } = useAuth();
   const { t } = useTranslation();
-  const scaleAnim = new Animated.Value(0.5);
   const fadeAnim = new Animated.Value(0);
 
   useEffect(() => {
-    // Animate logo
-    Animated.parallel([
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 10,
-        friction: 3,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    // Sadece fade-in — scale bounce native splash'ten sonra "yarım logo" görünümüne yol açıyordu
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
 
     // Navigate after animation
     const timer = setTimeout(() => {
@@ -53,10 +44,7 @@ export default function SplashScreen() {
       <Animated.View
         style={[
           styles.logoContainer,
-          {
-            transform: [{ scale: scaleAnim }],
-            opacity: fadeAnim,
-          },
+          { opacity: fadeAnim },
         ]}
       >
         <Image

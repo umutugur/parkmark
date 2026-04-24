@@ -150,7 +150,13 @@
     "appNotificationsDesc": "ParkMark'tan güncellemeler, ipuçları ve haberler",
     "upgradeToPro": "Pro'ya Yükselt",
     "upgradeSubtitle": "Sınırsız park, reklamsız deneyim",
-    "renewsOn": "Yenileme tarihi: {{date}}"
+    "renewsOn": "Yenileme tarihi: {{date}}",
+    "deleteAccount": "Hesabımı Sil",
+    "deleteAccountSection": "Tehlikeli Alan",
+    "deleteAccountConfirmTitle": "Hesabı Kalıcı Olarak Sil",
+    "deleteAccountConfirmMessage": "Bu işlem geri alınamaz. Tüm park kayıtlarınız, fotoğraflarınız ve verileriniz kalıcı olarak silinecek.",
+    "deleteAccountConfirm": "Evet, Hesabımı Sil",
+    "deleteAccountSuccess": "Hesabınız silindi"
   },
   "notifications": {
     "parkingReminder": "Park yerinizi kontrol etme zamanı!",

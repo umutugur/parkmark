@@ -7,6 +7,7 @@ import Constants from 'expo-constants';
 export const REMINDER_NOTIF_KEY = '@parkmark_reminders_enabled';
 export const MARKETING_NOTIF_KEY = '@parkmark_marketing_enabled';
 const PUSH_TOKEN_KEY = '@parkmark_push_token';
+const PUSH_TOKEN_VERSION_KEY = '@parkmark_push_token_version';
 
 // Configure notification handler (Expo Go'da push desteği yok ama local notif çalışır)
 try {
@@ -76,10 +77,12 @@ export const getExpoPushToken = async (): Promise<string | null> => {
 
 /**
  * Giriş sonrası çağrılır: izin ister, token alır, backend'e gönderir.
- * Daha önce kaydedilmiş token varsa tekrar göndermez (değişmedikçe).
+ * forceRegister=true → cache kontrolünü atla (kullanıcının DB'de token'ı yoksa kullanılır).
+ * Yeni uygulama sürümünde → otomatik olarak cache bypass edilir.
  */
 export const registerPushToken = async (
-  updateFn: (prefs: { pushToken?: string | null; marketingNotificationsEnabled?: boolean }) => Promise<any>
+  updateFn: (prefs: { pushToken?: string | null; marketingNotificationsEnabled?: boolean }) => Promise<any>,
+  forceRegister = false
 ): Promise<void> => {
   try {
     if (Platform.OS === 'web') return;
@@ -95,15 +98,23 @@ export const registerPushToken = async (
     const token = await getExpoPushToken();
     if (!token) return;
 
-    // Daha önce bu token kaydedildiyse tekrar gönderme
-    const cached = await AsyncStorage.getItem(PUSH_TOKEN_KEY);
-    if (cached === token) return;
+    // Yeni sürümde token'ı yeniden kaydet (version değişmişse cache bypass)
+    const appVersion = Constants.expoConfig?.version ?? '1.0.0';
+    const cachedVersion = await AsyncStorage.getItem(PUSH_TOKEN_VERSION_KEY);
+    const versionChanged = cachedVersion !== appVersion;
+
+    if (!forceRegister && !versionChanged) {
+      // Aynı token daha önce kaydedildiyse tekrar gönderme
+      const cached = await AsyncStorage.getItem(PUSH_TOKEN_KEY);
+      if (cached === token) return;
+    }
 
     const marketingPref = await AsyncStorage.getItem(MARKETING_NOTIF_KEY);
     const marketingEnabled = marketingPref !== 'false';
 
     await updateFn({ pushToken: token, marketingNotificationsEnabled: marketingEnabled });
     await AsyncStorage.setItem(PUSH_TOKEN_KEY, token);
+    await AsyncStorage.setItem(PUSH_TOKEN_VERSION_KEY, appVersion);
   } catch (error) {
     console.error('[Push] registerPushToken hatası:', error);
   }

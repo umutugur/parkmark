@@ -141,6 +141,27 @@ export async function authRoutes(app: FastifyInstance) {
     }
   });
 
+  // Hesabı ve tüm verileri kalıcı olarak sil
+  app.delete('/api/auth/me', { preHandler: authenticate }, async (request, reply) => {
+    try {
+      const { ParkingRecord } = await import('../parking/parking.schema');
+      const { FileRecord } = await import('../files/file.schema');
+      const { User } = await import('./user.schema');
+      const payload = (request as any).user;
+      const userId = payload.sub;
+
+      await Promise.all([
+        ParkingRecord.deleteMany({ userId }),
+        FileRecord.deleteMany({ userId }),
+        User.findByIdAndDelete(userId),
+      ]);
+
+      return reply.send({ success: true });
+    } catch (err: any) {
+      return reply.status(err.statusCode || 500).send({ statusCode: err.statusCode || 500, message: err.message });
+    }
+  });
+
   // Manuel push bildirimi gönder (sadece admin/backend kullanımı için — API key ile koruyun)
   // Kullanım: POST /api/push/send { title, body, userIds?: string[], onlyMarketing?: boolean }
   app.post('/api/push/send', async (request, reply) => {
