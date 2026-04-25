@@ -94,6 +94,8 @@ export default function HomeScreen() {
 
   const requestNotificationOnFirstVisit = async () => {
     try {
+      // Ekranın tam açılması için bekle — geçiş animasyonu bitmeden dialog çıkmasın
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       const status = await getNotificationPermissionStatus();
       // İzin belirsizse sor, verilmişse token kaydet (token yoksa force)
       if (status === 'undetermined' || status === 'granted') {
@@ -191,11 +193,14 @@ export default function HomeScreen() {
             }}
             title={t('home.yourCarIsParked')}
             description={activeParking?.address ?? ''}
-            anchor={{ x: 0.5, y: 0.5 }}
+            anchor={{ x: 0.5, y: 1.0 }}
           >
             {/* collapsable={false} Android'de custom marker render sorununu çözer */}
-            <View style={styles.markerContainer} collapsable={false}>
-              <Ionicons name="car" size={22} color="white" />
+            <View collapsable={false} style={styles.pinWrapper}>
+              <View style={styles.pinCircle}>
+                <Ionicons name="car" size={20} color="white" />
+              </View>
+              <View style={styles.pinTail} />
             </View>
           </Marker>
         )}
@@ -301,7 +306,10 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
     borderRadius: BorderRadius.full,
   },
-  markerContainer: {
+  pinWrapper: {
+    alignItems: 'center',
+  },
+  pinCircle: {
     width: 44,
     height: 44,
     backgroundColor: Colors.primary,
@@ -310,11 +318,22 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
     shadowRadius: 4,
+  },
+  pinTail: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 8,
+    borderRightWidth: 8,
+    borderTopWidth: 14,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: Colors.primary,
+    marginTop: -2,
   },
   bottomCard: {
     position: 'absolute',

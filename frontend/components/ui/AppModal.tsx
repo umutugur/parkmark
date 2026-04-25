@@ -109,19 +109,13 @@ export const AppModal: React.FC<AppModalProps> = ({
           {!!title && <Text style={styles.dialogTitle}>{title}</Text>}
           {!!message && <Text style={styles.dialogMessage}>{message}</Text>}
 
-          <View
-            style={[
-              styles.dialogButtons,
-              buttons.length > 1 && styles.dialogButtonsRow,
-            ]}
-          >
+          <View style={styles.dialogButtons}>
             {buttons.map((btn, i) => (
               <TouchableOpacity
                 key={i}
                 style={[
                   styles.dialogBtn,
-                  buttons.length > 1 && styles.dialogBtnFlex,
-                  i > 0 && buttons.length > 1 && styles.dialogBtnMarginLeft,
+                  i > 0 && styles.dialogBtnMarginTop,
                   btn.style === 'cancel' && styles.dialogBtnCancel,
                   btn.style === 'destructive' && styles.dialogBtnDestructive,
                   (btn.style == null || btn.style === 'default') && styles.dialogBtnDefault,
@@ -249,19 +243,13 @@ const styles = StyleSheet.create({
   dialogButtons: {
     marginTop: Spacing.xs,
   },
-  dialogButtonsRow: {
-    flexDirection: 'row',
-  },
   dialogBtn: {
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.md,
     alignItems: 'center',
   },
-  dialogBtnFlex: {
-    flex: 1,
-  },
-  dialogBtnMarginLeft: {
-    marginLeft: Spacing.sm,
+  dialogBtnMarginTop: {
+    marginTop: Spacing.sm,
   },
   dialogBtnDefault: {
     backgroundColor: Colors.primary,

@@ -142,7 +142,7 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   // Hesabı ve tüm verileri kalıcı olarak sil
-  app.delete('/api/auth/me', { preHandler: authenticate }, async (request, reply) => {
+  app.delete('/auth/me', { preHandler: authenticate }, async (request, reply) => {
     try {
       const { ParkingRecord } = await import('../parking/parking.schema');
       const { FileRecord } = await import('../files/file.schema');
