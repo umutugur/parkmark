@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(authToken);
       // RevenueCat her zaman initialize edilmeli (uygulama yeniden açıldığında da)
       if (userData?.user?.id) {
-        initializePurchases(userData.user.id);
+        try { initializePurchases(userData.user.id); } catch {}
       }
       // Token kaydı arka planda — UI'yi bloklamaz
       // Kullanıcının DB'de push token'ı yoksa cache bypass ederek kaydet
@@ -147,7 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       apiService.setToken(newToken);
       setToken(newToken);
       setUser(userData);
-      initializePurchases(userData.id);
+      try { initializePurchases(userData.id); } catch {}
       registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
     } else {
       throw new Error('Invalid login response');
@@ -164,7 +164,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       apiService.setToken(newToken);
       setToken(newToken);
       setUser(userData);
-      initializePurchases(userData.id);
+      try { initializePurchases(userData.id); } catch {}
       registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
     } else {
       throw new Error('Invalid signup response');
@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       apiService.setToken(newToken);
       setToken(newToken);
       setUser(userData);
-      initializePurchases(userData.id);
+      try { initializePurchases(userData.id); } catch {}
       registerPushToken(apiService.updateNotificationPrefs.bind(apiService)).catch(() => {});
     } else {
       throw new Error('Invalid OAuth response');

@@ -162,6 +162,25 @@
     "parkingReminder": "Park yerinizi kontrol etme zamanı!",
     "permissionDenied": "Bildirim izni reddedildi"
   },
+  "paywall": {
+    "title": "ParkMark Pro",
+    "subtitle": "Sınırsız park pini oluştur",
+    "monthly": "Aylık",
+    "sixMonth": "6 Aylık",
+    "yearly": "Yıllık",
+    "bestValue": "En İyi Değer",
+    "subscribe": "Abone Ol",
+    "watchAd": "24 saat ücretsiz kullan — Reklam İzle",
+    "restore": "Satın alımları geri yükle",
+    "errorTitle": "Hata",
+    "offeringsError": "Abonelik paketleri yüklenemedi. Lütfen tekrar deneyin.",
+    "purchaseError": "Satın alma işlemi başarısız.",
+    "restoreSuccess": "Satın alımlar geri yüklendi.",
+    "restoreError": "Geri yükleme başarısız.",
+    "adNotReady": "Reklam henüz hazır değil. Lütfen birkaç saniye bekleyip tekrar deneyin.",
+    "adError": "Reklam gösterilemedi.",
+    "freemiumError": "Freemium aktivasyonu başarısız."
+  },
   "errors": {
     "networkError": "Ağ hatası. Lütfen bağlantınızı kontrol edin.",
     "unauthorized": "Oturum süresi doldu. Lütfen tekrar giriş yapın.",

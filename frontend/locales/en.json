@@ -162,6 +162,25 @@
     "parkingReminder": "Time to check your parking!",
     "permissionDenied": "Notification permission denied"
   },
+  "paywall": {
+    "title": "ParkMark Pro",
+    "subtitle": "Unlimited parking records",
+    "monthly": "Monthly",
+    "sixMonth": "6 Months",
+    "yearly": "Yearly",
+    "bestValue": "Best Value",
+    "subscribe": "Subscribe",
+    "watchAd": "Try free for 24 hours — Watch an Ad",
+    "restore": "Restore purchases",
+    "errorTitle": "Error",
+    "offeringsError": "Could not load subscription packages. Please try again.",
+    "purchaseError": "Purchase failed. Please try again.",
+    "restoreSuccess": "Purchases restored successfully.",
+    "restoreError": "Restore failed. Please try again.",
+    "adNotReady": "Ad is not ready yet. Please wait a moment and try again.",
+    "adError": "Could not show ad.",
+    "freemiumError": "Could not activate free trial."
+  },
   "errors": {
     "networkError": "Network error. Please check your connection.",
     "unauthorized": "Session expired. Please login again.",

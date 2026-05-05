@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Destek – ParkMark</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #1a2130;
+      line-height: 1.7;
+    }
+    header {
+      background: #1a2130;
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+    header p { margin-top: 8px; color: #a0aec0; font-size: 0.95rem; }
+    .lang-switch {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px;
+      background: #edf2f7;
+    }
+    .lang-switch button {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #fff;
+      color: #1a2130;
+      transition: all 0.2s;
+    }
+    .lang-switch button.active {
+      background: #FFC107;
+      color: #1a2130;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a2130;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #FFC107;
+      display: inline-block;
+    }
+    .faq-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .faq-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a2130;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      font-size: 0.95rem;
+      color: #4a5568;
+    }
+    .contact-card {
+      background: #1a2130;
+      color: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+    .contact-card h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .contact-card p {
+      color: #a0aec0;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+    .contact-card a {
+      display: inline-block;
+      background: #FFC107;
+      color: #1a2130;
+      font-weight: 700;
+      padding: 12px 32px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: opacity 0.2s;
+    }
+    .contact-card a:hover { opacity: 0.85; }
+
+    .lang { display: none; }
+    .lang.active { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>ParkMark</h1>
+  <p id="header-sub">Destek Merkezi</p>
+</header>
+
+<div class="lang-switch">
+  <button class="active" onclick="setLang('tr')">Türkçe</button>
+  <button onclick="setLang('en')">English</button>
+</div>
+
+<!-- TURKISH -->
+<div class="lang active" id="lang-tr">
+  <div class="container">
+
+    <div class="section">
+      <h2>Hakkında</h2>
+      <div class="faq-item">
+        <p>ParkMark, arabanı park ettigin yeri unutmaman icin tasarlanmis GPS destekli bir park asistanidir. Konumunu kaydet, fotograf cek, not birak ve arabana donerken navigasyonla direkt git.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Sik Sorulan Sorular</h2>
+
+      <div class="faq-item">
+        <h3>Park kaydettim ama haritada gorununmuyor.</h3>
+        <p>Uygulamaya konum izni verdiginizden emin olun. Ayarlar > Gizlilik > Konum Servisleri > ParkMark bolumunden "Uygulamayi Kullanirken" secenegini etkinlestirin.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Hatirlatici bildirimim gelmiyor.</h3>
+        <p>Bildirim izninin verildiginden emin olun. Ayarlar > Bildirimler > ParkMark bolumunden bildirimleri acin. Ayrica uygulama ici Ayarlar ekranindan "Park hatirlaticilari" seceneginin acik oldugunu dogrulayin.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Kac park kaydedebilirim?</h3>
+        <p>Ucretsiz hesaplarda 5 park kaydina kadar izin verilir. ParkMark Pro aboneligiyle sinırsız park kaydedebilirsiniz.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Aboneligimi nasil iptal ederim?</h3>
+        <p>iOS icin: Ayarlar > Apple ID > Abonelikler > ParkMark yolunu izleyin. Android icin: Google Play > Hesap > Abonelikler bolumunden iptal edebilirsiniz.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Abonelik satın aldım ama premium ozellikler acilmadi.</h3>
+        <p>Uygulama ici Ayarlar ekraninda "Satin alimlari geri yukle" butonuna basin. Sorun devam ederse bize ulasın.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Hesabimi nasil silerim?</h3>
+        <p>Uygulama ici Ayarlar ekraninin en altindaki "Hesabimi Sil" butonunu kullanabilirsiniz. Tum verileriniz kalici olarak silinir.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Uygulama hangi dilleri destekliyor?</h3>
+        <p>Turkce ve Ingilizce. Ayarlar ekranindan veya giris ekranindaki dil butonuyla degistirebilirsiniz.</p>
+      </div>
+    </div>
+
+    <div class="contact-card">
+      <h2>Bize Ulasin</h2>
+      <p>Sorunuz yanıt bulamadıysa e-posta ile yardim alabilirsınız. En gec 48 saat icinde donuyoruz.</p>
+      <a href="mailto:ugurumut11@gmail.com">ugurumut11@gmail.com</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ENGLISH -->
+<div class="lang" id="lang-en">
+  <div class="container">
+
+    <div class="section">
+      <h2>About</h2>
+      <div class="faq-item">
+        <p>ParkMark is a GPS-powered parking assistant that helps you remember where you parked your car. Save your location, take a photo, leave a note, and navigate back when you are ready to leave.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <h3>I saved a parking record but it is not showing on the map.</h3>
+        <p>Make sure location permission is granted. Go to Settings > Privacy > Location Services > ParkMark and select "While Using the App".</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>My reminder notification did not arrive.</h3>
+        <p>Check that notifications are enabled. Go to Settings > Notifications > ParkMark and turn on notifications. Also verify that "Parking reminders" is enabled in the app's Settings screen.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How many parking records can I save?</h3>
+        <p>Free accounts allow up to 5 parking records. With a ParkMark Pro subscription, you can save unlimited records.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How do I cancel my subscription?</h3>
+        <p>On iOS: go to Settings > Apple ID > Subscriptions > ParkMark. On Android: open Google Play > Account > Subscriptions and cancel from there.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>I purchased a subscription but premium features are not unlocked.</h3>
+        <p>Tap "Restore purchases" on the app's Settings screen. If the issue persists, please contact us.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How do I delete my account?</h3>
+        <p>Use the "Delete My Account" button at the bottom of the Settings screen inside the app. All your data will be permanently deleted.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Which languages does the app support?</h3>
+        <p>Turkish and English. You can switch from the Settings screen or using the language button on the login screen.</p>
+      </div>
+    </div>
+
+    <div class="contact-card">
+      <h2>Contact Us</h2>
+      <p>If your question was not answered here, reach out via email. We respond within 48 hours.</p>
+      <a href="mailto:ugurumut11@gmail.com">ugurumut11@gmail.com</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function setLang(lang) {
+    document.querySelectorAll('.lang').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.lang-switch button').forEach(b => b.classList.remove('active'));
+    document.getElementById('lang-' + lang).classList.add('active');
+    event.target.classList.add('active');
+    document.getElementById('header-sub').textContent =
+      lang === 'tr' ? 'Destek Merkezi' : 'Support Center';
+  }
+</script>
+
+</body>
+</html>

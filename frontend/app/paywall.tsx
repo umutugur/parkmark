@@ -10,7 +10,8 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import { getOfferings, purchasePackage, restorePurchases } from '../services/purchases';
+import { useTranslation } from 'react-i18next';
+import { getOfferings, purchasePackage, restorePurchases, initializePurchases } from '../services/purchases';
 import { loadRewardedAd } from '../services/ads';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,29 +21,10 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { AppModal, AppModalProps } from '../components/ui/AppModal';
 
 // rcIdentifier → RevenueCat package identifier ($rc_*)
-const PLANS = [
-  {
-    id: 'monthly',
-    rcIdentifier: '$rc_monthly',
-    label: 'Aylık',
-    price: '$2.99',
-    highlight: false,
-  },
-  {
-    id: 'sixMonth',
-    rcIdentifier: '$rc_six_month',
-    label: '6 Aylık',
-    price: '$12.99',
-    highlight: false,
-  },
-  {
-    id: 'yearly',
-    rcIdentifier: '$rc_annual',
-    label: 'Yıllık',
-    price: '$19.99',
-    badge: 'En İyi Değer',
-    highlight: true,
-  },
+const PLAN_CONFIGS = [
+  { id: 'monthly',  rcIdentifier: '$rc_monthly',   labelKey: 'monthly',  highlight: false, badge: false, fallbackPrice: '$2.99'  },
+  { id: 'sixMonth', rcIdentifier: '$rc_six_month',  labelKey: 'sixMonth', highlight: false, badge: false, fallbackPrice: '$12.99' },
+  { id: 'yearly',   rcIdentifier: '$rc_annual',     labelKey: 'yearly',   highlight: true,  badge: true,  fallbackPrice: '$19.99' },
 ];
 
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -50,7 +32,8 @@ const { RewardedAdEventType } = isExpoGo ? ({} as any) : require('react-native-g
 
 export default function PaywallScreen() {
   const router = useRouter();
-  const { refreshUser } = useAuth();
+  const { refreshUser, user } = useAuth();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [modal, setModal] = useState<Omit<AppModalProps, 'onClose'>>({ visible: false });
   const showAlert = (title: string, message?: string, buttons?: AppModalProps['buttons']) =>
@@ -69,20 +52,16 @@ export default function PaywallScreen() {
   }, []);
 
   const loadOfferings = async () => {
+    if (isExpoGo || __DEV__) return; // RevenueCat simulator/Expo Go'da çalışmaz
     try {
-      const current = await getOfferings();
-      if (__DEV__) {
-        console.log('[Paywall] current offering:', JSON.stringify(current, null, 2));
-        console.log('[Paywall] packages:', current?.availablePackages?.map((p: any) => ({
-          id: p.identifier,
-          type: p.packageType,
-          productId: p.product?.identifier,
-        })));
+      // Güvenlik: RC daha init edilmediyse user id ile initialize et
+      if (user?.id) {
+        try { initializePurchases(user.id); } catch {}
       }
+      const current = await getOfferings();
       setOfferings(current);
     } catch (err) {
       console.error('[Paywall] offerings error:', err);
-      // silently fail, use fallback UI
     }
   };
 
@@ -97,27 +76,27 @@ export default function PaywallScreen() {
         await apiService.activateFreemium();
         router.back();
       } catch {
-        showAlert('Hata', 'Freemium aktivasyonu başarısız.');
+        showAlert(t('paywall.errorTitle'), t('paywall.freemiumError'));
       }
     });
     ad.load();
   };
 
   const handlePurchase = async () => {
-    if (isExpoGo) {
-      console.warn('[Paywall] Satın alma Expo Go\'da çalışmaz.');
+    if (isExpoGo || __DEV__) {
+      console.warn('[Paywall] Satın alma simulator/Expo Go\'da çalışmaz.');
       return;
     }
     if (!offerings) {
-      showAlert('Hata', 'Abonelik paketleri yüklenemedi.');
+      showAlert(t('paywall.errorTitle'), t('paywall.offeringsError'));
       return;
     }
-    const selectedPlanObj = PLANS.find(p => p.id === selectedPlan);
+    const selectedPlanObj = PLAN_CONFIGS.find(p => p.id === selectedPlan);
     const pkg = offerings.availablePackages?.find(
       (p: any) => p.identifier === selectedPlanObj?.rcIdentifier
     );
     if (!pkg) {
-      showAlert('Hata', 'Seçilen paket bulunamadı.');
+      showAlert(t('paywall.errorTitle'), t('paywall.offeringsError'));
       return;
     }
     setLoading(true);
@@ -135,13 +114,13 @@ export default function PaywallScreen() {
           isSubscribed: true,
           plan: productPlanMap[proEntitlement.productIdentifier] ?? 'monthly',
           expiresAt: proEntitlement.expirationDate ?? null,
-        }).catch(() => {}); // sync başarısız olsa da devam et
+        }).catch(() => {});
       }
       await refreshUser();
       router.back();
     } catch (err: any) {
       if (!err.userCancelled) {
-        showAlert('Hata', 'Satın alma işlemi başarısız.');
+        showAlert(t('paywall.errorTitle'), t('paywall.purchaseError'));
       }
     } finally {
       setLoading(false);
@@ -149,27 +128,27 @@ export default function PaywallScreen() {
   };
 
   const handleWatchAd = async () => {
-    if (isExpoGo) {
-      console.warn('[Paywall] Reklam Expo Go\'da çalışmaz.');
+    if (isExpoGo || __DEV__) {
+      console.warn('[Paywall] Reklam simulator/Expo Go\'da çalışmaz.');
       return;
     }
     if (!rewardedAd) {
-      showAlert('Reklam Hazır Değil', 'Lütfen birkaç saniye bekleyip tekrar deneyin.');
+      showAlert(t('paywall.errorTitle'), t('paywall.adNotReady'));
       return;
     }
     setAdLoading(true);
     try {
       await rewardedAd.show();
     } catch {
-      showAlert('Hata', 'Reklam gösterilemedi.');
+      showAlert(t('paywall.errorTitle'), t('paywall.adError'));
     } finally {
       setAdLoading(false);
     }
   };
 
   const handleRestore = async () => {
-    if (isExpoGo) {
-      console.warn('[Paywall] Geri yükleme Expo Go\'da çalışmaz.');
+    if (isExpoGo || __DEV__) {
+      console.warn('[Paywall] Geri yükleme simulator/Expo Go\'da çalışmaz.');
       return;
     }
     setLoading(true);
@@ -187,11 +166,11 @@ export default function PaywallScreen() {
         expiresAt: proEntitlement?.expirationDate ?? null,
       }).catch(() => {});
       await refreshUser();
-      showAlert('Başarılı', 'Satın alımlar geri yüklendi.', [
-        { text: 'Tamam', onPress: () => router.back() },
+      showAlert(t('common.success'), t('paywall.restoreSuccess'), [
+        { text: t('common.ok'), onPress: () => router.back() },
       ]);
     } catch {
-      showAlert('Hata', 'Geri yükleme başarısız.');
+      showAlert(t('paywall.errorTitle'), t('paywall.restoreError'));
     } finally {
       setLoading(false);
     }
@@ -208,39 +187,47 @@ export default function PaywallScreen() {
       {/* Title */}
       <View style={styles.titleSection}>
         <Ionicons name="shield-checkmark" size={48} color={Colors.primary} />
-        <Text style={styles.title}>ParkMark Pro</Text>
-        <Text style={styles.subtitle}>Sınırsız park pini oluştur</Text>
+        <Text style={styles.title}>{t('paywall.title')}</Text>
+        <Text style={styles.subtitle}>{t('paywall.subtitle')}</Text>
       </View>
 
       {/* Plans */}
       <View style={styles.plansContainer}>
-        {PLANS.map((plan) => (
-          <TouchableOpacity
-            key={plan.id}
-            onPress={() => setSelectedPlan(plan.id)}
-          >
-            <GlassCard
-              style={[
-                styles.planCard,
-                selectedPlan === plan.id && styles.planCardSelected,
-                plan.highlight && styles.planCardHighlight,
-              ]}
+        {PLAN_CONFIGS.map((plan) => {
+          // Fiyatı RC'den al, yoksa hardcoded fallback göster
+          const rcPkg = offerings?.availablePackages?.find(
+            (p: any) => p.identifier === plan.rcIdentifier
+          );
+          const priceString = rcPkg?.product?.priceString ?? plan.fallbackPrice;
+
+          return (
+            <TouchableOpacity
+              key={plan.id}
+              onPress={() => setSelectedPlan(plan.id)}
             >
-              {plan.badge && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{plan.badge}</Text>
+              <GlassCard
+                style={[
+                  styles.planCard,
+                  selectedPlan === plan.id && styles.planCardSelected,
+                  plan.highlight && styles.planCardHighlight,
+                ]}
+              >
+                {plan.badge && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{t('paywall.bestValue')}</Text>
+                  </View>
+                )}
+                <View style={styles.planRow}>
+                  <View style={styles.planRadio}>
+                    {selectedPlan === plan.id && <View style={styles.planRadioDot} />}
+                  </View>
+                  <Text style={styles.planLabel}>{t(`paywall.${plan.labelKey}`)}</Text>
+                  <Text style={styles.planPrice}>{priceString}</Text>
                 </View>
-              )}
-              <View style={styles.planRow}>
-                <View style={styles.planRadio}>
-                  {selectedPlan === plan.id && <View style={styles.planRadioDot} />}
-                </View>
-                <Text style={styles.planLabel}>{plan.label}</Text>
-                <Text style={styles.planPrice}>{plan.price}</Text>
-              </View>
-            </GlassCard>
-          </TouchableOpacity>
-        ))}
+              </GlassCard>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* Purchase Button */}
@@ -252,7 +239,7 @@ export default function PaywallScreen() {
         {loading ? (
           <ActivityIndicator color={Colors.bgDeep} />
         ) : (
-          <Text style={styles.purchaseButtonText}>Abone Ol</Text>
+          <Text style={styles.purchaseButtonText}>{t('paywall.subscribe')}</Text>
         )}
       </TouchableOpacity>
 
@@ -267,14 +254,14 @@ export default function PaywallScreen() {
         ) : (
           <>
             <Ionicons name="play-circle-outline" size={20} color={Colors.textPrimary} style={{ marginRight: 6 }} />
-            <Text style={styles.adButtonText}>24 saat ücretsiz kullan — Reklam İzle</Text>
+            <Text style={styles.adButtonText}>{t('paywall.watchAd')}</Text>
           </>
         )}
       </TouchableOpacity>
 
       {/* Restore */}
       <TouchableOpacity onPress={handleRestore} style={styles.restoreButton}>
-        <Text style={styles.restoreText}>Satın alımları geri yükle</Text>
+        <Text style={styles.restoreText}>{t('paywall.restore')}</Text>
       </TouchableOpacity>
     </LinearGradient>
   );
