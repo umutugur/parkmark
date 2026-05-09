@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Colors, Spacing, BorderRadius, FontSizes, FontWeights } from '../../constants/theme';
 
 export interface AppModalButton {
@@ -27,17 +28,19 @@ export const AppModal: React.FC<AppModalProps> = ({
   visible,
   title,
   message,
-  buttons = [{ text: 'Tamam' }],
+  buttons,
   onClose,
 }) => {
+  const { t } = useTranslation();
+  const resolvedButtons: AppModalButton[] = buttons ?? [{ text: t('common.ok') }];
   const handlePress = (btn: AppModalButton) => {
     onClose?.();
     setTimeout(() => btn.onPress?.(), 100);
   };
 
-  const cancelBtn = buttons.find((b) => b.style === 'cancel');
-  const otherBtns = buttons.filter((b) => b.style !== 'cancel');
-  const isSheet = buttons.length >= 3;
+  const cancelBtn = resolvedButtons.find((b) => b.style === 'cancel');
+  const otherBtns = resolvedButtons.filter((b) => b.style !== 'cancel');
+  const isSheet = resolvedButtons.length >= 3;
 
   if (isSheet) {
     return (
@@ -110,7 +113,7 @@ export const AppModal: React.FC<AppModalProps> = ({
           {!!message && <Text style={styles.dialogMessage}>{message}</Text>}
 
           <View style={styles.dialogButtons}>
-            {buttons.map((btn, i) => (
+            {resolvedButtons.map((btn, i) => (
               <TouchableOpacity
                 key={i}
                 style={[
