@@ -119,6 +119,8 @@ export default function SettingsScreen() {
 
   const handleLanguageChange = async (lang: 'en' | 'tr') => {
     await changeLanguage(lang);
+    // Backend'e de sync et (hata olursa sessizce devam et)
+    apiService.updateNotificationPrefs({ language: lang }).catch(() => {});
   };
 
   const handleLogout = () => {

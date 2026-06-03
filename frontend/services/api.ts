@@ -106,6 +106,7 @@ class ApiService {
   async updateNotificationPrefs(prefs: {
     marketingNotificationsEnabled?: boolean;
     pushToken?: string | null;
+    language?: 'tr' | 'en';
   }): Promise<{ success: boolean }> {
     const response = await this.client.patch<{ success: boolean }>(
       new URL('/api/auth/notification-prefs', API_URL).toString(),
