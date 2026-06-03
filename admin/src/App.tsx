@@ -13,6 +13,7 @@ import Notifications from './pages/Notifications';
 import Revenue from './pages/Revenue';
 import AppSettings from './pages/AppSettings';
 import Logs from './pages/Logs';
+import ScheduledNotifications from './pages/ScheduledNotifications';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route path="notifications" element={<Notifications />} />
         <Route path="revenue" element={<Revenue />} />
         <Route path="settings" element={<AppSettings />} />
+        <Route path="scheduled-notifications" element={<ScheduledNotifications />} />
         <Route path="logs" element={<Logs />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

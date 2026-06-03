@@ -11,6 +11,7 @@ import {
   ClipboardDocumentListIcon,
   ArrowRightOnRectangleIcon,
   XMarkIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -20,6 +21,7 @@ const navItems = [
   { path: '/parkings', label: 'Parkings', icon: MapPinIcon },
   { path: '/map', label: 'Map', icon: MapIcon },
   { path: '/notifications', label: 'Notifications', icon: BellIcon },
+  { path: '/scheduled-notifications', label: 'Scheduled', icon: ClockIcon },
   { path: '/revenue', label: 'Revenue', icon: CurrencyDollarIcon },
   { path: '/settings', label: 'Settings', icon: Cog6ToothIcon },
   { path: '/logs', label: 'Logs', icon: ClipboardDocumentListIcon },
