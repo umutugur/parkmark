@@ -4,6 +4,7 @@ import { IScheduledNotification, ScheduledNotification } from '../models/Schedul
 import { NotificationLog } from '../models/NotificationLog';
 import { CronNotificationLog } from '../models/CronNotificationLog';
 import { User } from '../auth/user.schema';
+import { resolveLanguage, sendExpoPush } from './push';
 
 export interface CronTaskResult {
   ok: boolean;
@@ -13,8 +14,6 @@ export interface CronTaskResult {
   durationMs: number;
 }
 
-type SupportedLanguage = 'tr' | 'en';
-
 interface UserSnapshot {
   _id: Types.ObjectId;
   name: string;
@@ -23,11 +22,6 @@ interface UserSnapshot {
   marketingNotificationsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
-}
-
-function resolveLanguage(value: unknown): SupportedLanguage {
-  if (typeof value !== 'string') return 'tr';
-  return value.trim().toLowerCase().startsWith('en') ? 'en' : 'tr';
 }
 
 function isSameUTCDay(a: Date, b: Date): boolean {
@@ -81,23 +75,6 @@ function matchesTrigger(
     }
     default:
       return false;
-  }
-}
-
-async function sendExpoPush(token: string, title: string, body: string): Promise<boolean> {
-  try {
-    const res = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ to: token, title, body, sound: 'default', priority: 'high', channelId: 'default' }),
-    });
-    if (!res.ok) return false;
-    const payload = await res.json().catch(() => null) as any;
-    if (!payload) return true;
-    const data = Array.isArray(payload.data) ? payload.data[0] : payload.data;
-    return data?.status !== 'error';
-  } catch {
-    return false;
   }
 }
 

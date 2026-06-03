@@ -5,6 +5,7 @@ import { AdminLog, IAdminLog } from './adminlog.schema';
 import { User } from '../auth/user.schema';
 import { ParkingRecord } from '../parking/parking.schema';
 import { FileRecord } from '../files/file.schema';
+import { ScheduledNotification } from '../models/ScheduledNotification';
 
 async function logAction(
   adminUser: string,
@@ -518,6 +519,181 @@ export async function adminRoutes(app: FastifyInstance) {
       }));
 
       return reply.send({ parkings: data });
+    } catch (err: any) {
+      return reply.status(500).send({ statusCode: 500, message: err.message });
+    }
+  });
+
+  // ─── Scheduled Notifications — List ───────────────────────────────────────
+  app.get('/scheduled-notifications', async (request, reply) => {
+    try {
+      const { page = '1', limit = '25' } = request.query as any;
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
+      const skip = (pageNum - 1) * limitNum;
+
+      const [items, total] = await Promise.all([
+        ScheduledNotification.find().sort({ createdAt: -1 }).skip(skip).limit(limitNum).lean(),
+        ScheduledNotification.countDocuments(),
+      ]);
+
+      return reply.send({
+        items: items.map((i: any) => ({ ...i, id: i._id.toString() })),
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      });
+    } catch (err: any) {
+      return reply.status(500).send({ statusCode: 500, message: err.message });
+    }
+  });
+
+  // ─── Scheduled Notifications — Bulk Create ────────────────────────────────
+  app.post('/scheduled-notifications/bulk', async (request, reply) => {
+    try {
+      const items = request.body as any[];
+      if (!Array.isArray(items)) {
+        return reply.status(400).send({ statusCode: 400, message: 'Body must be a JSON array' });
+      }
+
+      const validCategories = ['welcome', 'reminder', 'tip', 'winback', 'seasonal'];
+      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date'];
+      let created = 0;
+      let skipped = 0;
+      const errors: string[] = [];
+
+      for (const [index, item] of items.entries()) {
+        const rowNum = index + 1;
+        if (!item?.title?.tr || !item?.title?.en) {
+          errors.push(`Item ${rowNum}: title.tr and title.en required`);
+          skipped++;
+          continue;
+        }
+        if (!item?.body?.tr || !item?.body?.en) {
+          errors.push(`Item ${rowNum}: body.tr and body.en required`);
+          skipped++;
+          continue;
+        }
+        if (!validCategories.includes(item.category)) {
+          errors.push(`Item ${rowNum}: invalid category "${item.category}"`);
+          skipped++;
+          continue;
+        }
+        if (!validTriggers.includes(item.trigger_type)) {
+          errors.push(`Item ${rowNum}: invalid trigger_type "${item.trigger_type}"`);
+          skipped++;
+          continue;
+        }
+
+        await ScheduledNotification.create({
+          title: item.title,
+          body: item.body,
+          category: item.category,
+          trigger_type: item.trigger_type,
+          trigger_value: item.trigger_value ?? null,
+          recurring_pattern: item.recurring_pattern ?? null,
+          recurring_day: item.recurring_day ?? null,
+          recurring_hour: item.recurring_hour ?? 7,
+          is_active: item.is_active !== false,
+        });
+        created++;
+      }
+
+      return reply.send({ created, skipped, errors });
+    } catch (err: any) {
+      return reply.status(500).send({ statusCode: 500, message: err.message });
+    }
+  });
+
+  // ─── Scheduled Notifications — Bulk Delete ────────────────────────────────
+  app.delete('/scheduled-notifications/bulk', async (request, reply) => {
+    try {
+      const { ids } = request.body as { ids: string[] };
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return reply.status(400).send({ statusCode: 400, message: 'ids array required' });
+      }
+      const result = await ScheduledNotification.deleteMany({ _id: { $in: ids } });
+      return reply.send({ deleted: result.deletedCount });
+    } catch (err: any) {
+      return reply.status(500).send({ statusCode: 500, message: err.message });
+    }
+  });
+
+  // ─── Scheduled Notifications — Create ─────────────────────────────────────
+  app.post('/scheduled-notifications', async (request, reply) => {
+    try {
+      const {
+        title, body, category, trigger_type,
+        trigger_value = null, recurring_pattern = null,
+        recurring_day = null, recurring_hour = 7, is_active = true,
+      } = request.body as any;
+
+      if (!title?.tr || !title?.en) {
+        return reply.status(400).send({ statusCode: 400, message: 'title.tr and title.en are required' });
+      }
+      if (!body?.tr || !body?.en) {
+        return reply.status(400).send({ statusCode: 400, message: 'body.tr and body.en are required' });
+      }
+      const validCategories = ['welcome', 'reminder', 'tip', 'winback', 'seasonal'];
+      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date'];
+      if (!validCategories.includes(category)) {
+        return reply.status(400).send({ statusCode: 400, message: 'Invalid category' });
+      }
+      if (!validTriggers.includes(trigger_type)) {
+        return reply.status(400).send({ statusCode: 400, message: 'Invalid trigger_type' });
+      }
+
+      const doc = await ScheduledNotification.create({
+        title, body, category, trigger_type,
+        trigger_value, recurring_pattern, recurring_day,
+        recurring_hour: Math.min(23, Math.max(0, parseInt(recurring_hour, 10) || 7)),
+        is_active,
+      });
+
+      return reply.status(201).send({ ...doc.toJSON(), id: doc._id.toString() });
+    } catch (err: any) {
+      return reply.status(500).send({ statusCode: 500, message: err.message });
+    }
+  });
+
+  // ─── Scheduled Notifications — Update ─────────────────────────────────────
+  app.patch('/scheduled-notifications/:id', async (request, reply) => {
+    try {
+      const { id } = request.params as any;
+      const updates = request.body as any;
+      const allowed = [
+        'title', 'body', 'category', 'trigger_type', 'trigger_value',
+        'recurring_pattern', 'recurring_day', 'recurring_hour', 'is_active',
+      ];
+      const updateFields: Record<string, any> = {};
+      for (const key of allowed) {
+        if (updates[key] !== undefined) updateFields[key] = updates[key];
+      }
+      if (Object.keys(updateFields).length === 0) {
+        return reply.status(400).send({ statusCode: 400, message: 'No valid fields to update' });
+      }
+
+      const doc = await ScheduledNotification.findByIdAndUpdate(
+        id,
+        { $set: updateFields },
+        { new: true },
+      );
+      if (!doc) return reply.status(404).send({ statusCode: 404, message: 'Not found' });
+
+      return reply.send({ ...doc.toJSON(), id: doc._id.toString() });
+    } catch (err: any) {
+      return reply.status(500).send({ statusCode: 500, message: err.message });
+    }
+  });
+
+  // ─── Scheduled Notifications — Delete ─────────────────────────────────────
+  app.delete('/scheduled-notifications/:id', async (request, reply) => {
+    try {
+      const { id } = request.params as any;
+      const doc = await ScheduledNotification.findByIdAndDelete(id);
+      if (!doc) return reply.status(404).send({ statusCode: 404, message: 'Not found' });
+      return reply.send({ success: true });
     } catch (err: any) {
       return reply.status(500).send({ statusCode: 500, message: err.message });
     }

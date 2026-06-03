@@ -4,10 +4,9 @@ import { CronNotificationLog } from '../models/CronNotificationLog';
 import { ParkingRecord } from '../parking/parking.schema';
 import { User } from '../auth/user.schema';
 import { CronTaskResult } from './scheduled-notifications.task';
+import { SupportedLanguage, resolveLanguage, sendExpoPush } from './push';
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
-
-type SupportedLanguage = 'tr' | 'en';
 
 const copy: Record<SupportedLanguage, { title: (firstName: string) => string; body: string }> = {
   tr: {
@@ -19,28 +18,6 @@ const copy: Record<SupportedLanguage, { title: (firstName: string) => string; bo
     body: "Your parking record is still active. Tap 'Got My Car' when you're back!",
   },
 };
-
-function resolveLanguage(value: unknown): SupportedLanguage {
-  if (typeof value !== 'string') return 'tr';
-  return value.trim().toLowerCase().startsWith('en') ? 'en' : 'tr';
-}
-
-async function sendExpoPush(token: string, title: string, body: string): Promise<boolean> {
-  try {
-    const res = await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ to: token, title, body, sound: 'default', priority: 'high', channelId: 'default' }),
-    });
-    if (!res.ok) return false;
-    const payload = await res.json().catch(() => null) as any;
-    if (!payload) return true;
-    const data = Array.isArray(payload.data) ? payload.data[0] : payload.data;
-    return data?.status !== 'error';
-  } catch {
-    return false;
-  }
-}
 
 export async function runParkingReminder(now: Date): Promise<CronTaskResult> {
   const startedAt = Date.now();
