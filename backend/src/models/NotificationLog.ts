@@ -26,6 +26,14 @@ const NotificationLogSchema = new Schema<INotificationLog>(
   { versionKey: false },
 );
 
+NotificationLogSchema.set('toJSON', {
+  transform: (_, ret) => {
+    ret.id = ret._id.toString();
+    (ret as any)._id = undefined;
+    (ret as any).__v = undefined;
+  },
+});
+
 NotificationLogSchema.index({ scheduled_notification_id: 1, sent_at: -1 });
 
 export const NotificationLog = mongoose.model<INotificationLog>(

@@ -11,7 +11,7 @@ const CronNotificationLogSchema = new Schema<ICronNotificationLog>(
   {
     task: { type: String, required: true, trim: true, index: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    key: { type: String, required: true, trim: true, maxlength: 255, unique: true, index: true },
+    key: { type: String, required: true, trim: true, maxlength: 255, unique: true },
     sentAt: { type: Date, required: true, default: () => new Date(), index: true },
   },
   { versionKey: false },
