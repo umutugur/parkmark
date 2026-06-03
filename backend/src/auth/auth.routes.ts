@@ -108,7 +108,7 @@ export async function authRoutes(app: FastifyInstance) {
     try {
       const { User } = await import('./user.schema');
       const payload = (request as any).user;
-      const { marketingNotificationsEnabled, pushToken } = request.body as any;
+      const { marketingNotificationsEnabled, pushToken, language } = request.body as any;
 
       const updateFields: Record<string, any> = {};
       if (typeof marketingNotificationsEnabled === 'boolean') {
@@ -116,6 +116,9 @@ export async function authRoutes(app: FastifyInstance) {
       }
       if (pushToken !== undefined) {
         updateFields.pushToken = pushToken; // null göndererek temizlenebilir
+      }
+      if (language === 'tr' || language === 'en') {
+        updateFields.language = language;
       }
 
       if (Object.keys(updateFields).length === 0) {

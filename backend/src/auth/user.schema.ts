@@ -13,6 +13,7 @@ export interface IUser extends Document {
   pinCount: number;
   pushToken: string | null;
   marketingNotificationsEnabled: boolean;
+  language: 'tr' | 'en';
   banned: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -32,6 +33,7 @@ const UserSchema = new Schema<IUser>(
     pinCount: { type: Number, default: 0 },
     pushToken: { type: String, default: null },
     marketingNotificationsEnabled: { type: Boolean, default: true },
+    language: { type: String, enum: ['tr', 'en'], default: 'tr' },
     banned: { type: Boolean, default: false },
   },
   { timestamps: true },
