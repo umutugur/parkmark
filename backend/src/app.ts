@@ -10,6 +10,7 @@ import { uploadRoutes } from './upload/upload.routes';
 import { filesRoutes } from './files/files.routes';
 import { webhookRoutes } from './webhook/webhook.routes';
 import { adminRoutes } from './admin/admin.routes';
+import { cronRoutes } from './routes/cron.routes';
 
 export async function buildApp() {
   const app = Fastify({ logger: true });
@@ -49,6 +50,7 @@ export async function buildApp() {
   await app.register(filesRoutes, { prefix: '/api/files' });
   await app.register(webhookRoutes, { prefix: '/api/webhook' });
   await app.register(adminRoutes, { prefix: '/api/admin' });
+  await app.register(cronRoutes, { prefix: '/api' });
 
   return app;
 }
