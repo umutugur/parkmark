@@ -3,17 +3,7 @@ import { Types } from 'mongoose';
 import { CronNotificationLog } from '../models/CronNotificationLog';
 import { ParkingRecord } from '../parking/parking.schema';
 import { User } from '../auth/user.schema';
-
-// CronTaskResult is exported here so that scheduled-notifications.task.ts can
-// re-export it once Task 4 is in place. If that file already exists, this local
-// definition is kept for self-containment; reconcile the import at that point.
-export interface CronTaskResult {
-  ok: boolean;
-  sent: number;
-  skipped: number;
-  failed: number;
-  durationMs: number;
-}
+import { CronTaskResult } from './scheduled-notifications.task';
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
