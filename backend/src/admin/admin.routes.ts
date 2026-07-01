@@ -34,14 +34,6 @@ export async function adminRoutes(app: FastifyInstance) {
     }
 
     if (username !== adminUser || password !== adminPassword) {
-      app.log.warn({
-        usernameMatch: username === adminUser,
-        passwordMatch: password === adminPassword,
-        expectedUserLen: adminUser.length,
-        gotUserLen: username?.length,
-        expectedPassLen: adminPassword.length,
-        gotPassLen: password?.length,
-      }, 'DEBUG admin login mismatch');
       return reply.status(401).send({ statusCode: 401, message: 'Invalid credentials' });
     }
 
