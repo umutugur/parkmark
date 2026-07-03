@@ -4,6 +4,7 @@ import { IScheduledNotification, ScheduledNotification } from '../models/Schedul
 import { NotificationLog } from '../models/NotificationLog';
 import { CronNotificationLog } from '../models/CronNotificationLog';
 import { User } from '../auth/user.schema';
+import { ParkingRecord } from '../parking/parking.schema';
 import { resolveLanguage, sendExpoPush } from './push';
 
 export interface CronTaskResult {
@@ -44,6 +45,7 @@ function matchesTrigger(
   user: UserSnapshot,
   now: Date,
   inactiveDedupSet: Set<string>,
+  activeParkingByThreshold: Map<number, Set<string>>,
 ): boolean {
   switch (notif.trigger_type) {
     case 'days_after_register': {
@@ -72,6 +74,11 @@ function matchesTrigger(
         return notif.recurring_day != null && now.getUTCDate() === notif.recurring_day;
       }
       return false;
+    }
+    case 'active_parking_hours': {
+      if (notif.trigger_value == null) return false;
+      const set = activeParkingByThreshold.get(notif.trigger_value);
+      return !!set && set.has(user._id.toString());
     }
     default:
       return false;
@@ -123,6 +130,32 @@ export async function runScheduledNotifications(now: Date): Promise<CronTaskResu
     }
   }
 
+  // active_parking_hours: precompute, per distinct threshold, which users have an
+  // active parking record that has been sitting for at least that many hours.
+  const activeParkingByThreshold = new Map<number, Set<string>>();
+  const activeParkingThresholds = Array.from(
+    new Set(
+      hourNotifications
+        .filter((n) => n.trigger_type === 'active_parking_hours' && n.trigger_value != null)
+        .map((n) => n.trigger_value as number),
+    ),
+  );
+
+  for (const thresholdHours of activeParkingThresholds) {
+    const cutoff = new Date(now.getTime() - thresholdHours * 3600000);
+    const records = await ParkingRecord.find({
+      isActive: true,
+      parkedAt: { $lte: cutoff },
+    })
+      .select('userId')
+      .lean<Array<{ userId: Types.ObjectId }>>();
+
+    activeParkingByThreshold.set(
+      thresholdHours,
+      new Set(records.map((r) => r.userId.toString())),
+    );
+  }
+
   const notifiedUserIds = new Set<string>();
 
   for (const notif of hourNotifications) {
@@ -137,7 +170,7 @@ export async function runScheduledNotifications(now: Date): Promise<CronTaskResu
         continue;
       }
 
-      if (!matchesTrigger(notif, user, now, inactiveDedupSet)) {
+      if (!matchesTrigger(notif, user, now, inactiveDedupSet, activeParkingByThreshold)) {
         notifSkipped++;
         continue;
       }

@@ -15,7 +15,7 @@ import api from '../services/api';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Category = 'welcome' | 'reminder' | 'tip' | 'winback' | 'seasonal';
-type TriggerType = 'days_after_register' | 'days_inactive' | 'recurring' | 'fixed_date';
+type TriggerType = 'days_after_register' | 'days_inactive' | 'recurring' | 'fixed_date' | 'active_parking_hours';
 type RecurringPattern = 'daily' | 'weekly' | 'monthly';
 
 interface ScheduledNotification {
@@ -64,6 +64,8 @@ function describeTrigger(n: ScheduledNotification): string {
       return `${n.trigger_value} days inactive`;
     case 'fixed_date':
       return `Every month on day ${n.trigger_value}`;
+    case 'active_parking_hours':
+      return `Active parking ≥ ${n.trigger_value}h`;
     case 'recurring': {
       if (n.recurring_pattern === 'daily') return 'Every day';
       if (n.recurring_pattern === 'weekly') return `Every ${DAYS[n.recurring_day ?? 0]}`;
@@ -142,6 +144,7 @@ function NotifForm({ initial, onSave, onClose, isSaving, title }: NotifFormProps
                 <option value="days_inactive">Days inactive</option>
                 <option value="recurring">Recurring</option>
                 <option value="fixed_date">Fixed date (day of month)</option>
+                <option value="active_parking_hours">Active parking duration (hours)</option>
               </select>
             </div>
           </div>
@@ -149,10 +152,15 @@ function NotifForm({ initial, onSave, onClose, isSaving, title }: NotifFormProps
           {/* Trigger-specific fields */}
           {(form.trigger_type === 'days_after_register' ||
             form.trigger_type === 'days_inactive' ||
-            form.trigger_type === 'fixed_date') && (
+            form.trigger_type === 'fixed_date' ||
+            form.trigger_type === 'active_parking_hours') && (
             <div>
               <label className={labelCls}>
-                {form.trigger_type === 'fixed_date' ? 'Day of month (1–31)' : 'Number of days'}
+                {form.trigger_type === 'fixed_date'
+                  ? 'Day of month (1–31)'
+                  : form.trigger_type === 'active_parking_hours'
+                  ? 'Hours since parked'
+                  : 'Number of days'}
               </label>
               <input
                 type="number"
@@ -333,7 +341,7 @@ function BulkImportModal({
       const errors: string[] = [];
       const validItems: any[] = [];
       const validCats = ['welcome', 'reminder', 'tip', 'winback', 'seasonal'];
-      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date'];
+      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date', 'active_parking_hours'];
       parsed.forEach((item, i) => {
         const row = i + 1;
         if (!item?.title?.tr || !item?.title?.en)

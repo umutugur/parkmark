@@ -558,7 +558,7 @@ export async function adminRoutes(app: FastifyInstance) {
       }
 
       const validCategories = ['welcome', 'reminder', 'tip', 'winback', 'seasonal'];
-      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date'];
+      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date', 'active_parking_hours'];
       let created = 0;
       let skipped = 0;
       const errors: string[] = [];
@@ -636,7 +636,7 @@ export async function adminRoutes(app: FastifyInstance) {
         return reply.status(400).send({ statusCode: 400, message: 'body.tr and body.en are required' });
       }
       const validCategories = ['welcome', 'reminder', 'tip', 'winback', 'seasonal'];
-      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date'];
+      const validTriggers = ['days_after_register', 'days_inactive', 'recurring', 'fixed_date', 'active_parking_hours'];
       if (!validCategories.includes(category)) {
         return reply.status(400).send({ statusCode: 400, message: 'Invalid category' });
       }

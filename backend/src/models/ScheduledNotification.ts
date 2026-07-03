@@ -4,7 +4,7 @@ export interface IScheduledNotification extends Document {
   title: { tr: string; en: string };
   body: { tr: string; en: string };
   category: 'welcome' | 'reminder' | 'tip' | 'winback' | 'seasonal';
-  trigger_type: 'days_after_register' | 'days_inactive' | 'recurring' | 'fixed_date';
+  trigger_type: 'days_after_register' | 'days_inactive' | 'recurring' | 'fixed_date' | 'active_parking_hours';
   trigger_value: number | null;
   recurring_pattern: 'daily' | 'weekly' | 'monthly' | null;
   recurring_day: number | null;
@@ -31,7 +31,7 @@ const ScheduledNotificationSchema = new Schema<IScheduledNotification>(
     trigger_type: {
       type: String,
       required: true,
-      enum: ['days_after_register', 'days_inactive', 'recurring', 'fixed_date'],
+      enum: ['days_after_register', 'days_inactive', 'recurring', 'fixed_date', 'active_parking_hours'],
     },
     trigger_value: { type: Number, default: null },
     recurring_pattern: {
